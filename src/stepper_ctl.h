@@ -20,12 +20,14 @@
 // Data structure that defines a stepper motor for general use
 struct stepper_t {
     // phase pins connected to the control IC. e.g PB2, PD4
-    char phase1_pin;
-    char phase2_pin;
+    const char phaseA_pin;
+    const char phaseB_pin;
     // which port the relevant pin is located in e.g &PORTB, &PORTC
-    volatile uint8_t *phase1_port;
-    volatile uint8_t *phase2_port;
-    // the current state the motor is in (has #defines)
+    volatile uint8_t *phaseA_port;
+    volatile uint8_t *phaseB_port;
+    // current state of the motor (in the tick loop).
+    // the value is a 2-bit integer where phaseB_pin (msb) phaseA_pin (lsb) 
+    // i/o status are the bit values
     char state;
 };
 

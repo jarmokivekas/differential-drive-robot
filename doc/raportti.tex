@@ -1,0 +1,210 @@
+\documentclass[]{article} % A4 paper and 11pt font size
+
+\usepackage{listings} % Required for inserting code snippets
+\usepackage[usenames,dvipsnames]{color} % Required for specifying custom colors and referring 
+
+\usepackage[utf8]{inputenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage[finnish]{babel} % language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm,mathtools} % Math packages
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage[margin=1.0in]{geometry}
+%\newcommand{\sinc}{\text{sinc}}
+
+
+\newcommand{\sinc}{\text{sinc}}
+
+\setlength\parindent{0pt}
+\setlength{\parskip}{2mm plus1mm minus1mm}
+
+
+
+\usepackage{sectsty} % Allows customizing section commands
+%\allsectionsfont{\normalfont\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+%\renewcommand{\familydefault}{\sfdefault}
+
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{Matlab-harjoitustyö 2015} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+\numberwithin{table}{section}
+
+%\usepackage[margin=1.5in]{geometry}
+%\addtolength{\topmargin}{-.875in}
+%\addtolength{\textheight}{1.75in}
+%\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+% \tolerance=1200
+
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\title{	
+\normalfont \normalsize 
+\textsc{Turun ammattikorkeakoulu} \\ [25pt] % Your university, school and/or department name(s)
+\huge Matlab-harjoitustyöt 2015, Matematiikka 4\\ % The assignment title
+}
+\author{
+Jarmo Kivekäs 1302928
+}
+\date{\normalsize\today} % Today's date or a custom date
+
+
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Johdanto}
+\label{sec:Johdanto}
+
+
+Tämä raportti käsittelee robottia joka toteutettiin harjoitustyönä Ohjelmoinnin perusteet kurssia varten.
+Harjoitustyön tarkoituksen oli oppia järjestelmäläheistä ohjelmointia ARM sekä AVR ympäristäissä.
+Raportin sekä siin esitetyn materiaalin on laatinut Jarmo Kivekäs.
+
+
+\section{Järjestelmä arkkitehtuuri}
+\label{sec:Jarjestelma arkkitehtuuri}
+
+\section{Käyttöliittymä}
+\label{sec:Kayttoliittyma}
+
+Käyttöliittymä robotin ojausta varten toteutettiin RaspberryPi -alustalla.
+Robotin ohjaus käyttöliittymän kautta tapahtuu kokonaan RPI:n liitetyn ulkoisen USB näppäimistön kautta.
+
+\subsection{USB käyttöliittymälaitteiden tulkitseminen}
+\label{sub:USB kayttoliittymalaitteiden tulkitseminen}
+
+Näppäimisän kautta annetut käskyt luetaan erityisestä \verb+/dev/input/eventX+ tiedostosta. 
+
+\section{Ohjaus teoria}
+\label{sec:Ohjaus teoria}
+
+Robotin toteuttamista varten sovellettiin useaa eri mateemaattista mallinnusta robotin oletetusta käyttäytymisestä.
+Mallit phojautuvat hyvin tunnettuihun ohjausmalleihin joiden oikea toimivuus on näyhty käytännön sovelluksissa jo ennestään.
+ 
+
+\subsection{Kineettinen malli}
+\label{sub:Kineettinen malli}
+
+Mekaanisesti robotti on rakennettu niin, että liikkuminen toteutetaan ensisijaisesti kahdella laitteen sivuilla sijaitsevan renkaan avulla.
+Robotti liikkuu käyttäen kahta ns. differentiaalista ajo-moottoria.
+Käytännössä tämä tarkoittaa sitä, että sivulla olevia moottoerita voidaan ohjeta toisitaan riippumatta.
+Robotti kääntyy kun renkaat pyörivät eri nopeutta suhteessa toisiinsa.
+Lisäksi robotilla on vapaasti liikkuvia tukipyöriä jotta se pytyy tasapainossa.
+
+Robotin ohjaamista varten käytetty matemaattinen malli on seuraavanlainen:
+\begin{align}
+    \label{equ:diff-drive-implementation}
+    \begin{dcases}
+        \dot x = \cfrac{R}{2} (v_r + v_l) \cos (\phi)\\
+        \dot y = \cfrac{R}{2} (v_r + v_l) \sin (\phi)\\
+        \dot \phi = \cfrac{R}{L} (v_r - v_l)   
+    \end{dcases}
+\end{align}
+
+Robotin oletetaan kulkevan tasaisen tason pinnalla. $x$ ja $y$ kuvaavat laitteen paikkaa tasolla, $\phi$ robotin etuosan osittamaa suuntaan, $v_r$ ja $v_l$ ovat oikean sekä vasemmanpuolisen renkaan pyörimisnopeudet. Lisäksi mallissa esiintyy vakio $R$ joka on ohjaukseen käytettyjen renkaiden säde. Vakio $L$ on renkaiden etäisyys toisistaan.
+
+
+---
+
+Yllä esitelty malli toimii hyvin ohjausta varten.
+Ohjausalgorimejä kehittäessä päädyttiin kuitenkin siihen tulokseen, että järjestelmää kannattaa käsitellä  yksinkertaisemalla mallilla. Robotin liikkeitä on hankala hahmottaa ajattelemalla pelkästään renkaiden pyörimisnopeutta.
+
+Ohjausalgoritmien kehittämistä varten käytetty matemaattinen malli on seuraavanlainen:
+\begin{align}
+    \label{equ:diff-drive-design}
+    \begin{dcases}
+        \dot x = v \cos(\phi)\\
+        \dot y = v \sin(\phi)\\
+        \dot \phi = \omega
+    \end{dcases}
+\end{align}
+
+Mallin avulla voidaan määrittää robotin liikke käyttäen hyväksi pelkästään sen nopeutta $v$ sekä kulmanopeutta $\omega$.
+
+Soveltamalla malleja (\ref{equ:diff-drive-implementation}) ja (\ref{equ:diff-drive-design}) saadaan korrelaatio robotin translaation sekä rotaation ($v$ ja $\omega$) ja renkaiden pyörimisnopeuksien ($v_r$ ja $v_l$) välille:
+\begin{align}
+    \label{equ:diff-drive-correlation}
+    \begin{dcases}
+        \cfrac{vR}{L} = v_r + v_l\\
+        \cfrac{\omega L }{R} (v_r - v_l) 
+    \end{dcases}
+\end{align}
+
+\subsection{Ohjaus silmukan malli}
+\label{sub:Ohjaus silmukan malli}
+
+PID -ohjain
+
+
+\section{Kommunikointi protokolla}
+\label{sec:Kommunikointi protokilla}
+
+Robotti vastaanottaa käskyjä, ja lähettää sensoreista luettua tietoa takaisin sarjaväylän yli.
+
+Sarjaväylän langaton tiedonsiirto on toteutettuu 2.4 GHz pakettiradio moduuleilla.
+Moduulien tiedosiirtokyky on riittävän luotettava, että 
+
+
+\section{Oppitulosket}
+\label{sec:Oppitulosket}
+
+Projektin tarkoituksena oli syventyä järjestelmäläheiseen C-kilen ohjelmointiin AVR sekä ARM prosessoriarkkitehtuureilla ja yelisemmin kielen eri ominaisuuksiin.
+
+USB käyttöliitymälaitteiden raa'an datan tulkistemista varten ei löytynyt kovin perusteellista oppimateriaalia.
+Suuri osa työskently- ja oppimisprosessia koostui eri asiaankuuluvien C otsaketiedostojen lukemisesta, koska tietoa ei suurikaan muualta löytynyt helposti. 
+
+--
+
+Muita kiinnostavia oli esimerkiski keskiä millä datatyypillä AVR:n erikoistoimintorekisterit (SFR) ovat esitetty.
+Esitytavan tunteminen oli olennaista jotta pystyi esimerkiksi kirjoittamaan funktioita joille annetaan I/O -nasta argumenttina.
+
+\begin{verbatim}
+    volatile uint8_t *
+\end{verbatim}
+
+--    
+
+\verb+Struct+ tietorakentiden vertaileminen eri arkkitehtuureilla oli myös kiinnostavaa.
+RPI:n 32-bittin ARM arkkitehtuuri pyrkii asettamaan datan muistiosotteisiin jotka ovat neljällä jaollisia. 8-bittinen AVR ei kuitenkaan muistiosoitteien jaollisuudesta välitä.
+Tämä johtaa siihen, että structiin pakattua dataa ei voida turvallisesti siirtää suoraan ARM arkkitehtuurilta AVR arkkitehtuurille ilman että erikseen vamistetaan että tietorakenteiden esitys todella on sama molemmilla arkkitehtuuriella.
+Kirjoittaessa koodia jota on tarkoitus suorittaa molemilla arkkitehtuureilla pitää pitää mielessä että myös datatyyppien koot eroavat toisistaan. AVR:n \verb+int+ muuttuja on 16-bittinen, kun 32-bittisen ARM:n datatyyppi on 32-bittinen.
+Yleispätevää koodia saa kuitenkin kätevästi kirjoitettua käyttämällä \verb+<inttypes.h>+ määrittämiä datapyyppejä kuten \verb+uint8_t+ ja \verb+int32_t+
+--
+printf puskurointi
+
+\begin{itemize}
+    \item POSIX
+    \item ioctl
+    
+\end{itemize}
+
+  
+--
+
+Ojelmoitaessa PWM lähtöä moottoreiden ohjaamista varten oli vahingossa ATmega8 datalehti käytössä ATmega328 datalehden sijaan. Mikrokontrollert ovat melkein samanlaiset, mutta niisä ei kuitenkaan ole identtisiä ajastimia. 
+
+
+\end{document}

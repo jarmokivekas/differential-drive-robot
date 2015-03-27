@@ -1,0 +1,10 @@
+*.out
+*.toc
+*.log
+*.aux
+*.out
+*.exe
+*.hex
+*.elf
+
+bin/*

@@ -147,11 +147,19 @@ Mallin avulla voidaan määrittää robotin liikke käyttäen hyväksi pelkäst�
 Soveltamalla malleja (\ref{equ:diff-drive-implementation}) ja (\ref{equ:diff-drive-design}) saadaan korrelaatio robotin translaation sekä rotaation ($v$ ja $\omega$) ja renkaiden pyörimisnopeuksien ($v_r$ ja $v_l$) välille:
 \begin{align}
     \label{equ:diff-drive-correlation}
+    &
     \begin{dcases}
-        \cfrac{vR}{L} = v_r + v_l\\
-        \cfrac{\omega L }{R} (v_r - v_l) 
+        v &= \cfrac{R}{2} (v_r + v_l)\\
+        \omega &= \cfrac{R}{L} (v_r - v_l)\\
+    \end{dcases}
+    &
+    \begin{dcases}
+        v_r &= \cfrac{2v + \omega L}{2R}\\
+        v_l &= \cfrac{2v - \omega L}{2R}\\
     \end{dcases}
 \end{align}
+
+
 
 \subsection{Ohjaus silmukan malli}
 \label{sub:Ohjaus silmukan malli}

@@ -2,7 +2,7 @@
 CFLAGS = -Wall
 
 doc/raportti.pdf: doc/raportti.tex
-	pdflatex $^
+	pdflatex $^ --output-directory=doc/
 
 key-read: ./src/key-read.c
 	gcc ./src/key-read.c -o ./bin/key-read
@@ -29,4 +29,4 @@ bin/%_test.o: test/%_test.c
 
 #--------CLEANUP--------
 clean:
-	rm -rf bin/*.o *.out
+	rm -rf bin/* *.out

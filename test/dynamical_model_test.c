@@ -4,8 +4,8 @@
 
 
 int main(int argc, char const *argv[]) {
-    struct dynamic_design_t des = {0.0, 0.0};
-    struct dynamic_implement_t impl = {1.0, 1.0};
+    struct dynamic_design des = {0.0, 0.0};
+    struct dynamic_implement impl = {1.0, 1.0};
     
     
     dynamic_implement_to_design(&impl, &des);

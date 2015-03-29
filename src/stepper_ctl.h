@@ -1,3 +1,9 @@
+#ifndef STEPPER_CTL_H
+#define STEPPER_CTL_H
+
+
+
+
 // Jarmo Kivekas
 // Bippolar stepper motor control module for use with 3717 stepper
 // control IC for Atmel AVR
@@ -38,3 +44,4 @@ struct stepper_t {
 void stepper_tick(stepper_t *motor, char direction);
 
 
+#endif /* end of include guard: STEPPER_CTL_H */

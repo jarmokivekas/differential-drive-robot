@@ -1,3 +1,9 @@
+#ifndef DYNAMICAL_MODEL_H
+#define DYNAMICAL_MODEL_H
+
+
+
+
 
 // all physical length units are in millimeters
 
@@ -24,3 +30,5 @@ struct dynamic_design {
 
 void dynamic_design_to_implement(struct dynamic_design *design, struct dynamic_implement *implement);
 void dynamic_implement_to_design(struct dynamic_implement *implement, struct dynamic_design *design);
+
+#endif /* end of include guard: DYNAMICAL_MODEL_H */

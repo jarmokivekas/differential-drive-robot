@@ -1,3 +1,5 @@
+#ifndef COMMS_H
+#define COMMS_H
 
 
 
@@ -16,3 +18,4 @@ struct internal_state {
     float wheel velocity_right;
 };
 
+#endif /* end of include guard: COMMS_H */

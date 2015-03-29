@@ -5,7 +5,7 @@ doc/raportti.pdf: doc/raportti.tex
 	pdflatex $^ --output-directory=doc/
 
 key-read: ./src/key-read.c
-	gcc ./src/key-read.c -o ./bin/key-read
+	gcc -Wall ./src/key-read.c -o ./bin/$@
 
 avr-main: ./src/avr-main.c
 	avr-gcc -Os -mmcu=atmega328p -DF_CPU=16000000L ./src/avr-main.c -o ./bin/avr-main

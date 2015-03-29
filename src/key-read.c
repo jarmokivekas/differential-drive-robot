@@ -10,8 +10,8 @@
 #include <sys/stat.h>
 #include <sys/select.h>
 #include <sys/time.h>
-#include <termios.h>
-#include <signal.h>
+// #include <termios.h>
+// #include <signal.h>
 
 // define array indexes for the button_state array.
 #define IDX_W 0
@@ -21,76 +21,69 @@
 #define IDX_SPACE 4
 
 
-void handler (int sig)
-{
-	printf ("nexiting...(%d)n", sig);
-	exit (0);
-}
-
-void perror_exit (char *error)
-{
-	perror (error);
-	handler (9);
-}
 
 int main (int argc, char *argv[])
 {
-	struct input_event ev[1];
-	int fd, rd, value, size = sizeof (struct input_event);
-	char name[256] = "Unknown";
-	char *device = NULL;
+	int hid_fd;
+	char *device;
 
-	//Setup check
+	// Setup argument check
 	if (argv[1] == NULL){
-    		printf("Usage: %s <input device>", argv[0]);
-      		exit (0);
-    	}
-	printf("setup done\n");
-  	if ((getuid ()) != 0){
-    		fprintf(stderr, "WARNING: not running as root");
+    		printf("Usage: %s <input device>\n", argv[0]);
+      		exit (EXIT_FAILURE);
+    } else {
+		device = argv[1];
 	}
-  	if (argc > 1){
-    		device = argv[1];
+
+  	//Open device descriptor for read operations
+  	if ((hid_fd = open (device, O_RDONLY)) == -1){
+    		fprintf(stderr, "Unable to open device for reading: %s\n", device);
+			exit(EXIT_FAILURE);
 	}
-  	//Open Device
-  	if ((fd = open (device, O_RDONLY)) == -1){
-    		printf ("%s is not a vaild device\n", device);
-	}
-	printf("opened device file: %s \n", device);
-  	//Print Device Name
-  	ioctl (fd, EVIOCGNAME (sizeof (name)), name);
-  	printf ("Reading From : %s (%s)\n", device, name);
 
-	printf("about to enter loop\n");
-
-
-	char button_state_change = 0;
+	int packet_size = sizeof (struct input_event);
+	struct input_event event;
+	char button_state_change = 0;	//< bool, true when state change has happened 
 	char button_new_state = 0;
-	char inpacket[10];
+	char button_effected = -1;		//< default to keycode that does not exist
 	char key_state[6];
 	
   	while (1){
-      	if ((rd = read (fd, ev, size)) < size){
-         		perror_exit ("read()");
+		// this is a blocking read operation, it will wait until a full event
+		// packet has been read from the device
+      	if (read(hid_fd, &event, packet_size) < packet_size){
+         		perror("Failed to read keyboard data from device\n");
+				exit(EXIT_FAILURE);
 		}
-	   	//fprintf (stderr, "%d\t%d\t%d\n", ev[0].type, ev[0].code, ev[0].value);
+	   	//fprintf (stderr, "\ndebug: %d\t%d\t%d\n", event.type, event.code, event.value);
 
-		switch(ev[0].type){
-			case EV_SYN:
-				fprintf(stderr, "sync\n");
-				break;
-			case EV_KEY:
-				button_new_state = ev[0].value;
-			case EV_MSC:
-				button_state_change = 1;
-				break;
-			default:
-				break;
+		
+
+		// Event frames that start with EV_MSC packet indicate button
+		// state changes
+		if (event.type == EV_MSC && event.code == MSC_SCAN) {
+			button_state_change = 1;
 		}
+		// After an EV_MSC packet, an EV_KEY packet describes how the state 
+		// of the button was changed. The .code field specifies which button
+		else if (event.type == EV_KEY) {
+			button_new_state = event.value;
+			button_effected  = event.code;
+		}
+		// Event frames end with a synchronization packet, it contains no data.
+		// Variables are cleared to know state before parsing next event frame.
+		else if (event.type == EV_SYN) {
+			button_new_state = 0;
+			button_state_change = 0;
+			button_effected = -1;
+		}
+
+
+
 
 		if(button_state_change){
-			button_state_change = 0;
-			switch(ev[0].code){
+			//button_state_change = 0;
+			switch(button_effected){
 				case KEY_W:
 					//fprintf(stderr,"Keypress: forward velocity\n");
 					key_state[IDX_W] = button_new_state;
@@ -114,8 +107,8 @@ int main (int argc, char *argv[])
 				default:
 					break;
 			}
-			button_new_state = 0;
-			fprintf(stderr, "%d\t%d\t%d\t%d\t%d\t\n", key_state[0], key_state[1], key_state[2], key_state[3], key_state[4]);
+			//button_new_state = 0;
+			fprintf(stderr, "\n%d\t%d\t%d\t%d\t%d\t", key_state[0], key_state[1], key_state[2], key_state[3], key_state[4]);
 		}
 
 	}

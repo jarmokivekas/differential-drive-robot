@@ -1,5 +1,6 @@
 
 CFLAGS = -Wall
+CC = gcc
 
 doc/raportti.pdf: doc/raportti.tex
 	pdflatex $^ --output-directory=doc/
@@ -20,12 +21,16 @@ bin/dynamical_model_test: \
 	bin/dynamical_model.o
 	$(CC) $(CFLAGS) -o $@ $^
 	
-
+bin/hid_input_test: \
+	bin/hid_input_test.o\
+	bin/hid_input.o
+	$(CC) -pthread $(CFLAGS) -o $@ $^
+	
 	
 bin/%.o: src/%.c
 	$(CC) $(CFLAGS) -c -o $@ $^
 bin/%_test.o: test/%_test.c
-	$(CC) $(CFLAGS) -c -o $@ $^
+	$(CC) -pthread $(CFLAGS) -c -o $@ $^
 
 #--------CLEANUP--------
 clean:

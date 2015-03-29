@@ -12,6 +12,7 @@
 
 
 // define array indexes for the button_state array.
+#define NUM_INDEXED_KEYS 5
 #define IDX_W 0
 #define IDX_A 1
 #define IDX_S 2
@@ -21,6 +22,7 @@
 #define STATE_CHANGE_UP 0
 #define STATE_CHANGE_DOWN 1
 #define STATE_CHANGE_HOLD 2
+
 
 
 /** 
@@ -37,6 +39,12 @@ int hid_open_device(char *device);
  @param state_array: contains the states of all the key being tracked, will be modified
  */
 void hid_translate_state_change(uint16_t button, char new_state, char state_array[]);
+
+/** 
+ Used to set recently declared key_state array into a know state, fill with 0x00
+ @param key_state: array to be cleared, length is NUM_INDEXED_KEYS
+ */
+void hid_clear_key_state(char key_state[]);
 
 
 /** 

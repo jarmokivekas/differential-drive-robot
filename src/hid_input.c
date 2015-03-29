@@ -44,6 +44,12 @@ void hid_translate_state_change(uint16_t button, char new_state, char state_arra
 }
 
 
+void hid_clear_key_state(char key_state[]){
+	int i;
+	for (i = 0; i < NUM_INDEXED_KEYS; i++) {
+		key_state[i] = 0;
+	}
+}
 
 
 void *hid_polling_loop(void *device){
@@ -52,7 +58,9 @@ void *hid_polling_loop(void *device){
 	int packet_size = sizeof (struct input_event);
 	struct input_event event;
 	char button_state_change = 0;	//< bool, true when state change has happened 
-	char key_state[6];
+	char key_state[NUM_INDEXED_KEYS];
+	
+	hid_clear_key_state(key_state);
 	
   	while (1){
 		// this is a blocking read operation, it will wait until a full event

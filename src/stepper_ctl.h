@@ -1,12 +1,14 @@
+#include <stdint.h>
+
+/** 
+@file Bipolar stepper motor control module for use with 3717 stepper
+control IC for Atmel AVR
+ */
+
+
 #ifndef STEPPER_CTL_H
 #define STEPPER_CTL_H
 
-
-
-
-// Jarmo Kivekas
-// Bippolar stepper motor control module for use with 3717 stepper
-// control IC for Atmel AVR
 
 
 // each stepper tick is 1.8 degrees, total of 200 ticks per rotation
@@ -24,10 +26,10 @@
 #define PHASE_1B 3
 
 // Data structure that defines a stepper motor for general use
-struct stepper_t {
+struct stepper_motor {
     // phase pins connected to the control IC. e.g PB2, PD4
-    const char phaseA_pin;
-    const char phaseB_pin;
+    uint8_t phaseA_pin;
+    uint8_t phaseB_pin;
     // which port the relevant pin is located in e.g &PORTB, &PORTC
     volatile uint8_t *phaseA_port;
     volatile uint8_t *phaseB_port;
@@ -40,8 +42,13 @@ struct stepper_t {
 
 
 
-// motor: pointer to struct stepper_t of the motor that will be controlled
-void stepper_tick(stepper_t *motor, char direction);
+/** 
+PBL 3717 stepper motor driver interface.
+moves motor one single step in the specified direction
+@param motor: pointer to struct that specifies the motor to rotate
+@param direction: specifies direciton of motor tick
+*/
+void stepper_tick(struct stepper_motor *motor, char direction);
 
 
 #endif /* end of include guard: STEPPER_CTL_H */

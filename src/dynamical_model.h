@@ -5,10 +5,10 @@
 
 
 
-// all physical length units are in millimeters
+// all physical length units are in meters
 
-#define WHEEL_RADIUS 70.7
-#define WHEEL_SPACING 200.0
+#define WHEEL_RADIUS 0.0707
+#define WHEEL_SPACING 0.2000
 
 
 // Used to describe the internal state of the robot's differential drive.

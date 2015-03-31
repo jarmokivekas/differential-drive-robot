@@ -1,6 +1,12 @@
 #include "./hid_input.h"
+#include <string.h>
 
 
+
+char *hid_get_key_state(){
+	// key_state is a file scoped variable
+	return key_state;
+}
 
 
 int hid_open_device(char *device){
@@ -15,35 +21,30 @@ int hid_open_device(char *device){
 
 
 
+/* 
+XXX: If this switch gets too large, it should propably be replaced
+my a more formal data structure (e.g a hash map).
+*/
 void hid_translate_state_change(uint16_t button, char new_state, char state_array[]){
 	switch(button){
-		case KEY_W:
-			//fprintf(stderr,"Keypress: forward velocity\n");
-			state_array[IDX_W] = new_state;
-			break;
-		case KEY_A:
-			//fprintf(stderr,"Keypress: anti-clockwise rotation\n");
-			state_array[IDX_A] = new_state;
-			break;
-		case KEY_S:
-			//fprintf(stderr,"Keypress: backward velocity\n");
-			state_array[IDX_S] = new_state;
-			break;
-		case KEY_D:
-			//fprintf(stderr,"Keypress: clockwise rotation\n");
-			state_array[IDX_D] = new_state;
-			break;
-		case KEY_SPACE:
-			//fprintf(stderr,"Keypress: allstop");
-			state_array[IDX_SPACE] = new_state;
-			break;
-		default:
-			break;
+		case KEY_W: state_array[IDX_FWD]  = new_state; break;
+		case KEY_A: state_array[IDX_LEFT] = new_state; break;
+		case KEY_S: state_array[IDX_BACK] = new_state; break;
+		case KEY_D: state_array[IDX_RIGHT]= new_state; break;
+		//case KEY_UP: state_array[IDX_FWD]  = new_state; break;
+		//case KEY_LEFT: state_array[IDX_LEFT] = new_state; break;
+		//case KEY_DOWN: state_array[IDX_BACK] = new_state; break;
+		//case KEY_RIGHT: state_array[IDX_RIGHT]= new_state; break;
+		case KEY_R: state_array[IDX_TRANS_INC] = new_state; break;
+		case KEY_F:	state_array[IDX_TRANS_DEC] = new_state; break;
+		case KEY_TAB: state_array[IDX_ROT_INC] = new_state; break;
+		case KEY_CAPSLOCK: state_array[IDX_ROT_DEC] = new_state; break;
+		case KEY_SPACE: state_array[IDX_ALLSTOP] = new_state; break;
+		default: break;
 	}
-	fprintf(stderr, "\n%d\t%d\t%d\t%d\t%d\t", state_array[0], state_array[1], state_array[2], state_array[3], state_array[4]);
 }
 
-
+// TODO: replace this function with memset() form <string.h>
 void hid_clear_key_state(char key_state[]){
 	int i;
 	for (i = 0; i < NUM_INDEXED_KEYS; i++) {
@@ -51,15 +52,22 @@ void hid_clear_key_state(char key_state[]){
 	}
 }
 
-
+/*
+argument is void* not char* because the function is intended to be called through prthread_create, which passes all argument as a
+single void*
+*/
 void *hid_polling_loop(void *device){
 
 	int hid_fd = hid_open_device(device);
+
 	int packet_size = sizeof (struct input_event);
 	struct input_event event;
-	char button_state_change = 0;	//< bool, true when state change has happened 
-	char key_state[NUM_INDEXED_KEYS];
-	
+
+	// boolean, set to true when state change has happened 
+	char button_state_change = 0;
+
+	// static char key_state[] is declared in file scope
+
 	hid_clear_key_state(key_state);
 	
   	while (1){
@@ -70,17 +78,13 @@ void *hid_polling_loop(void *device){
 				exit(EXIT_FAILURE);
 		}
 		
-	   	//fprintf (stderr, "\ndebug: %d\t%d\t%d\n", event.type, event.code, event.value);
-
 		
-		// Event frames that start with EV_MSC packet indicate button
-		// state changes
+		// Event frames that start with EV_MSC packet indicate button state changes
 		if (event.type == EV_MSC && event.code == MSC_SCAN) {
 			button_state_change = 1;
 		}
 		
-		// After an EV_MSC packet, an EV_KEY packet describes how the state 
-		// of the button was changed. The .code field specifies which button
+		// After an EV_MSC packet (i.e a state change indicator), an EV_KEY packet describes how the state of the button was changed (.value). The .code field specifies which button was changed
 		else if (event.type == EV_KEY && button_state_change) {
 			// write key event into key_state array
 			hid_translate_state_change(event.code, event.value, key_state);	

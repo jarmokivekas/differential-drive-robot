@@ -1,5 +1,7 @@
 
 CFLAGS = -Wall
+PIFLAGS = -pthread
+AVRFLAGS = -DF_CPU=16000000L
 CC = gcc
 
 doc/raportti.pdf: doc/raportti.tex
@@ -15,6 +17,11 @@ avr-main: ./src/avr-main.c
 avr-flash:
 	avrdude -C/usr/share/arduino/hardware/tools/avrdude.conf -patmega328p -carduino -P/dev/ttyACM0 -b115200 -D -Uflash:w:./bin/avr-main:e
 
+rpi-main: \
+	bin/rpi_main.o\
+	bin/dynamical_model.o\
+	bin/hid_input.o
+	$(CC) -pthread $(CFLAGS) -o $@ $^
 
 bin/dynamical_model_test: \
 	bin/dynamical_model_test.o\
@@ -28,7 +35,7 @@ bin/hid_input_test: \
 	
 	
 bin/%.o: src/%.c
-	$(CC) $(CFLAGS) -c -o $@ $^
+	$(CC) -pthread $(CFLAGS) -c -o $@ $^
 bin/%_test.o: test/%_test.c
 	$(CC) -pthread $(CFLAGS) -c -o $@ $^
 

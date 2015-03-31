@@ -1,8 +1,8 @@
 #include <stdio.h>	
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <stdint.h>
 #include <errno.h>
 #include <linux/input.h>
 
@@ -12,17 +12,35 @@
 
 
 // define array indexes for the button_state array.
-#define NUM_INDEXED_KEYS 5
-#define IDX_W 0
-#define IDX_A 1
-#define IDX_S 2
-#define IDX_D 3
-#define IDX_SPACE 4
+#define NUM_INDEXED_KEYS 9
+#define IDX_FWD 0         
+#define IDX_LEFT 1
+#define IDX_BACK 2
+#define IDX_RIGHT 3
+#define IDX_ALLSTOP 4
+#define IDX_TRANS_INC 5
+#define IDX_TRANS_DEC 6
+#define IDX_ROT_INC 7
+#define IDX_ROT_DEC 8
 
 #define STATE_CHANGE_UP 0
 #define STATE_CHANGE_DOWN 1
 #define STATE_CHANGE_HOLD 2
 
+/** 
+ The array contains the current states of the key that are being tracked
+ (based on #define IDX_<key>). Declared as static to prevent writes for outside
+ this module. 
+ */
+char key_state[NUM_INDEXED_KEYS];
+
+
+
+
+/** 
+ Getter fuction for the key state array (for use in files outside this module)
+ */
+char *hid_get_key_state();
 
 
 /** 
@@ -34,6 +52,9 @@ int hid_open_device(char *device);
 
 
 /** 
+ Since only some of the keypresses are of interest, not all
+ of them are tracked. This function translates the relevant key codes
+ used in <linux/input.h> to array indexes and applies new state values.
  @param button: the code for the pressed button, #defines in <linux/input.h>
  @param new_state: the state to which the key has changed. 
  @param state_array: contains the states of all the key being tracked, will be modified

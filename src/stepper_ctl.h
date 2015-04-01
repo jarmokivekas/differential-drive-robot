@@ -10,22 +10,17 @@ control IC for Atmel AVR
 #define STEPPER_CTL_H
 
 
-
-// each stepper tick is 1.8 degrees, total of 200 ticks per rotation
-#define TICK_LEN 1.8
-#define TICKS_PER_ROT 200
-
 // direction definitions used for stepper_tick() direction argument
 #define CLOCKWISE 0
 #define ANTI_CLOCKWISE 1
 
-#define PORT_MOTOR PORTB
-#define PHASE_0A 0
-#define PHASE_1A 1
-#define PHASE_0B 2
-#define PHASE_1B 3
+#define PHASE_A_MASK 0x01
+#define PHASE_B_MASK 0x02
 
-// Data structure that defines a stepper motor for general use
+/**
+Data structure that defines a finite state machine used for controlling
+a stepper motor
+*/
 struct stepper_state_machine {
     // phase pins connected to the control IC. e.g PB2, PD4
     uint8_t phaseA_pin;
@@ -37,18 +32,15 @@ struct stepper_state_machine {
     // the value is a 2-bit integer where phaseB_pin (msb) phaseA_pin (lsb) 
     // i/o status are the bit values
     char state;
-    char next[] = {1,3,2,0}
-    char prev[] = {2,3,1,0}
 };
-
 
 
 
 /** 
 PBL 3717 stepper motor driver interface.
 moves motor one single step in the specified direction
-@param motor: pointer to struct that specifies the motor to rotate
-@param direction: specifies direciton of motor tick
+@param mach: pointer to struct that specifies the motor state machine to rotate
+@param direction: specifies direciton of motor tick, either CLOCKWISE or ANTI_CLOCKWISE
 */
 void stepper_tick(struct stepper_state_machine *mach, char direction);
 

@@ -26,7 +26,7 @@ control IC for Atmel AVR
 #define PHASE_1B 3
 
 // Data structure that defines a stepper motor for general use
-struct stepper_motor {
+struct stepper_state_machine {
     // phase pins connected to the control IC. e.g PB2, PD4
     uint8_t phaseA_pin;
     uint8_t phaseB_pin;
@@ -37,6 +37,8 @@ struct stepper_motor {
     // the value is a 2-bit integer where phaseB_pin (msb) phaseA_pin (lsb) 
     // i/o status are the bit values
     char state;
+    char next[] = {1,3,2,0}
+    char prev[] = {2,3,1,0}
 };
 
 
@@ -48,7 +50,7 @@ moves motor one single step in the specified direction
 @param motor: pointer to struct that specifies the motor to rotate
 @param direction: specifies direciton of motor tick
 */
-void stepper_tick(struct stepper_motor *motor, char direction);
+void stepper_tick(struct stepper_state_machine *mach, char direction);
 
 
 #endif /* end of include guard: STEPPER_CTL_H */

@@ -67,10 +67,8 @@ int main(int argc, char const *argv[]) {
     if (a = 1.23){
         PORTB ^= 0xff; 
     }
-    _delay_ms(1000);
     
 
-    _delay_ms(1);
     UDR0 = 55;
     char received_byte = 'A';
     while (1) {
@@ -102,15 +100,7 @@ int main(int argc, char const *argv[]) {
  */
 ISR(USART_RX_vect){
     cli();
-    static 
-    PORTB ^= 0xff;
-    char rec;
-    rec = UDR0;
-    
-    UDR0 = ++rec;
-    UDR0 = 'a';
-    while ((UCSR0A & (1 << UDRE0)) == 0){};
-    
-    UDR0 = 'b';
+    /* echo received character */
+    uart_putchar(UDR0);
     sei();
 }

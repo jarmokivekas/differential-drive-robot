@@ -61,20 +61,31 @@ int main (int argc, char *argv[])
 		exit(EXIT_FAILURE);
 		
 	}
-    
+    	
+	/* keyboard commands are translated into abstract movement commands stored in the command struct */
 	struct movement_command command = {.rot_mul = 1,.trans_mul =1, .rot_magn=1.0,.trans_magn=1.0};
    	char msg_buffer [256];
 	int msg_idx = 0; 
+
+	/* structs passed to the dynamic model conversion function */
+	struct dynamic_implement impl = {.velo_right = 0, .velo_left = 0};
+	struct dynamic_design des = {.velo_translation = 0, .velo_rotation = 0};
+
 	while (1){
 		msg_idx = 0;
 		apply_keyboard_commands(key_state, &command);
+
+		des.velo_translation = command.trans_magn * command.trans_mul;
+		des.velo_rotation    = command.rot_magn   * command.rot_mul;
+		dynamic_design_to_implement(&des, &impl);
+
 		//debug_dump_array(key_state, NUM_INDEXED_KEYS);
 		debug_dump_commands(&command);
-		usleep(100000);
-		//msg_idx = sprintf(msg_buffer, "$%g,%g#", command.rot_magn, command.trans_magn);
-		msg_idx = sprintf(msg_buffer, "$%g,%g#", command.rot_magn, command.trans_magn);
-		write(uart_fd, "$12.12#\n", 8);
+		msg_idx = sprintf(msg_buffer, "$%g,%g#", impl.velo_left, impl.velo_right);
+		//write(uart_fd, "$12.12#\n", 8);
 		fprintf(stderr, "message:\t%s\nmsg_idx:\t%d\n", msg_buffer, msg_idx);
+
+		usleep(100000);
 	}
 
 	return 0;

@@ -1,16 +1,16 @@
 #define BAUD 9600
 #define F_CPU 16000000L
-// Special function register definitions, etc
-#include <avr/io.h>
-// for interrupt service routine prototypes 
-#include <avr/interrupt.h>
-// for definions related to usart baud rates
-#include <util/setbaud.h>
-// for _delay_ms()
-#include <util/delay.h>
+#include <avr/io.h>         // Special function register definitions, etc
+#include <avr/interrupt.h>  // for interrupt service routine prototypes 
+#include <util/setbaud.h>   // for definions related to usart baud rates
+#include <util/delay.h>     // for _delay_ms()
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>         // for memcpy()
+
+#include "dynamical_model.h"
+#include "stepper_ctl.h"
 
 // defines for initializing the ATmega USART peripheral
 // Baudrate 115200 in Asynchronous normal mode
@@ -18,11 +18,35 @@
 #define COMMS_UBRR ((FOSC/(16UL *BAUD))-1)
 
 
+/* pin mapping definition, so they are easily changed later if needed */
+
+// stepper motor control pins. Naming scheme: PIN Stepper [Left|Right] [A|B])
+#define PINSLA PD2
+#define PINSLB PD4
+#define PINSRB PD7
+#define PINSRB PB4
+// stepper motor  control ports
+#define PORTSLA PORTD
+#define PORTSLB PORTD
+#define PORTSRB PORTD
+#define PORTSRB PORTB
+//serial radio enable
+#define PINRADIO PB0
+
+
+
+
+
+
 void uart_putchar(char c) {
-    /* Wait until data register empty. */
+    /* Busy-wait until data register empty. */
     while ((UCSR0A & (1<<UDRE0)) == 0){};
     UDR0 = c;
 }
+
+
+
+
 
 char uart_getchar(void) {
     /* Wait until data is present in the buffer */
@@ -31,7 +55,13 @@ char uart_getchar(void) {
 }
 
 
-// ubrr: Usart Baud Rate Register
+
+
+
+/*
+UBRR: Usart Baud Rate Register
+Initalize Usast periheprel for radio comms
+*/
 void USART0_init(){
     // Set baud rate
     UBRR0H = (unsigned char)(COMMS_UBRR>>8);
@@ -53,46 +83,10 @@ void USART0_init(){
     
 }
 
-float a;
-char got_float;
-int main(int argc, char const *argv[]) {
-    /* enable interrupts globally */
-    sei();
-    /* Initialize usart0, used for radio comms to the controlling device */
-    USART0_init();
-    DDRB = 0xff;
-    
-    a = atof("1.23");
-    _delay_ms(1000);
-    if (a = 1.23){
-        PORTB ^= 0xff; 
-    }
-    
 
-    UDR0 = 55;
-    char received_byte = 'A';
-    while (1) {
-        PORTB ^= (1<<PB5);
-        _delay_ms(100);
-        if (got_float){
-            ;
-        }
-        /*
-        delay until data has been received and is ready to be read
-        */
-        //while ((UCSR0A & (1 << RXC0)) == 0){};
-        
-    //    received_byte = UDR0;
-        /* 
-        delay until the serial data register is ready to be written to
-        */
-        //while ((UCSR0A & (1 << UDRE0)) == 0){};
-        
-        /* transimt the received byte back to sender */
-    //    UDR0 = 54;
-    }
-    return 0;
-}
+
+
+
 
 
 /** 
@@ -100,7 +94,93 @@ int main(int argc, char const *argv[]) {
  */
 ISR(USART_RX_vect){
     cli();
+    /* parse data here*/
     /* echo received character */
     uart_putchar(UDR0);
     sei();
 }
+
+
+
+/**
+calculate how long between stepper tick for specifed velocity
+The function relies on 
+velo_angular: rotation speed of the motor, in degrees/second
+*/
+inline int tick_len_ms(float velo_angular){
+    return 360.0/STEPPER_TICK_NUM/velo_angular;
+}
+
+
+
+
+
+
+
+// buffer will be cast to float pointers
+char *velo_right_buffer;
+char *velo_left_buffer;
+/* signal to main program loop that there is data to be read */
+char serial_data_availabe;
+int main(int argc, char const *argv[]) {
+    
+    /* PB0 pin high enables radio comms using Xino-RF serial radio*/
+    DDRB  |= (1<<PINRADIO);
+    PORTB |= (1<<PINRDAIO);
+    
+    /* Initialize usart0, used for radio comms to the controlling device */
+    USART0_init();
+    
+    /* enable interrupts globally */
+    sei();
+    
+    /*debugging code */
+    DDRB = 0xff;
+    a = atof("1.23");
+    _delay_ms(1000);
+    if (a = 1.23){
+        PORTB ^= 0xff; 
+    }
+    
+    /* holds data about the current desired state of the robot */
+    struct dynamic_implement impl = {.velo_right = 0.0, .velo_left = 0.0};
+    float delay_r;
+    float delay_l;
+    
+    
+    /* Initialize stepper motor control structs */
+    
+    struct stepper_state_machine right_stepper = {
+        .phaseA_pin = PINSRA,
+        .phaseB_pin = PINSRB,
+        .phaseA_port = &PORTSRA,
+        .phaseB_port = &PORTSRB,
+        .state = 0
+    };
+    
+    struct stepper_state_machine left_stepper = {
+        .phaseA_pin = PINSLA,
+        .phaseB_pin = PINSLB,
+        .phaseA_port = &PORTSLA,
+        .phaseB_port = &PORTSLB,
+        .state = 0
+    };
+    
+    
+    
+    /*** Main program loop ***/
+    
+    while (1) {
+        if (serial_data_availabe){
+            // read the speed data
+        }
+        
+        stepper_tick()
+        float delay_r = STEPPER_TICK_LEN/impl.velo_right;
+        float delay_l = STEPPER_TICK_LEN/impl.velo_left;
+        
+        
+    }
+    return 0;
+}
+

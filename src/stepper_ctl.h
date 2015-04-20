@@ -1,7 +1,7 @@
 #include <stdint.h>
 
 /** 
-@file Bipolar stepper motor control module for use with 3717 stepper
+@file Bipolar stepper motor control module for use with PL3717 stepper
 control IC for Atmel AVR
  */
 
@@ -9,10 +9,15 @@ control IC for Atmel AVR
 #ifndef STEPPER_CTL_H
 #define STEPPER_CTL_H
 
+// the amount of tick per motor rotation
+#define STEPPER_TICK_NUM 200.0
+// the amount of rotation in each tick
+#define STEPPER_TICK_LEN 360.0/STEPPER_TICK_NUM
 
 // direction definitions used for stepper_tick() direction argument
 #define CLOCKWISE 0
 #define ANTI_CLOCKWISE 1
+
 
 #define PHASE_A_MASK 0x01
 #define PHASE_B_MASK 0x02

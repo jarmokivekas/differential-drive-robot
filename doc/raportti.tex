@@ -27,7 +27,7 @@
 
 \pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
 \fancyhead{} % No page header - if you want one, create it in the same way as the footers below
-\fancyfoot[L]{Matlab-harjoitustyö 2015} % Empty left footer
+\fancyfoot[L]{AVR ja ARM harjorustyö 2015} % Empty left footer
 \fancyfoot[C]{} % Empty center footer
 \fancyfoot[R]{\thepage} % Page numbering for right footer
 \renewcommand{\headrulewidth}{0pt} % Remove header underlines
@@ -49,7 +49,7 @@
 \title{	
 \normalfont \normalsize 
 \textsc{Turun ammattikorkeakoulu} \\ [25pt] % Your university, school and/or department name(s)
-\huge Matlab-harjoitustyöt 2015, Matematiikka 4\\ % The assignment title
+\huge AVR ja ARM harjorustyö, Ohjelmoinnin jatkokurssi\\ % The assignment title
 }
 \author{
 Jarmo Kivekäs 1302928
@@ -144,7 +144,7 @@ Ohjausalgoritmien kehittämistä varten käytetty matemaattinen malli on seuraav
 
 Mallin avulla voidaan määrittää robotin liikke käyttäen hyväksi pelkästään sen translaatio nopeutta $v$ sekä kulmanopeutta $\omega$.
 
-Soveltamalla malleja (\ref{equ:diff-drive-implementation}) ja (\ref{equ:diff-drive-design}) saadaan korrelaatio robotin translaation sekä rotaation ($v$ ja $\omega$) ja renkaiden pyörimisnopeuksien ($v_r$ ja $v_l$) välille:
+Soveltamalla malleja (\ref{equ:diff-drive-implementation}) ja (\ref{equ:diff-drive-design}) saadaan robotin translaation sekä rotaation ($v$ ja $\omega$) ja renkaiden pyörimisnopeuksien ($v_r$ ja $v_l$) välille korrelaatio joka on helppo toteutta C-kielellä:
 \begin{align}
     \label{equ:diff-drive-correlation}
     &
@@ -170,11 +170,7 @@ PID -ohjain
 \section{Kommunikointi protokolla}
 \label{sec:Kommunikointi protokilla}
 
-Robotti vastaanottaa käskyjä, ja lähettää sensoreista luettua tietoa takaisin sarjaväylän yli.
-
-Sarjaväylän langaton tiedonsiirto on toteutettuu 2.4 GHz pakettiradio moduuleilla.
-Moduulien tiedosiirtokyky on riittävän luotettava, että 
-
+Sarjaväylän kommunikaatio toteutettiin AVRllä käyttäen mikro-ohjaimen tuottamaa ISR -funktiokutsua joka tapahtuu aina kun sarjavälälle on saapunut tavu dataa. \verb+printf()+ -perheen funktioiden vaatima \verb+stdio+ puskuri toteutettiin myös, mutta funktioita ei kuitenkaan päädytty käyttämään suuren ROM vaatimuksien takia (yli 1000 tavua pelkän \verb+printf()+ käyttämistä varten). 
 
 \section{Oppitulosket}
 \label{sec:Oppitulosket}
@@ -184,24 +180,36 @@ Projektin tarkoituksena oli syventyä järjestelmäläheiseen C-kilen ohjelmoint
 USB käyttöliitymälaitteiden raa'an datan tulkistemista varten ei löytynyt kovin perusteellista oppimateriaalia.
 Suuri osa työskently- ja oppimisprosessia koostui eri asiaankuuluvien C otsaketiedostojen lukemisesta, koska tietoa ei suurikaan muualta löytynyt helposti. 
 
---
+\subsection{Rekisteriosoittimien käsittely}
+\label{Rekisteriosoittimien kasittely}
 
-Muita kiinnostavia oli esimerkiski keskiä millä datatyypillä AVR:n erikoistoimintorekisterit (SFR) ovat esitetty.
-Esitytavan tunteminen oli olennaista jotta pystyi esimerkiksi kirjoittamaan funktioita joille annetaan I/O -nasta argumenttina.
+Muita kiinnostavia asioita oli esimerkiski keskiä millä datatyypillä AVR:n erikoistoimintorekisterit (SFR) niin kuin \verb+PORTB+ ovat esitetty.
+Esitytavan tunteminen oli olennaista jotta pystyi kirjoittamaan tehokkaita funktioita joille annetaan I/O -nasta argumenttina. Arduino/wiring kirjastoja käyttäessä kuluu paljon laskutehoa siihen, että siirrytään Arduinon nastojen numeroinnista AVR yhteensopivaan esitystapaan. Käsittelemällä rekisterejen osoittajia saadaan huomattavasti nopeammin suoritettavaa koodia.
+
+Esitystapaa tuli käytettyä esim stepperimoottoreiden määrittelyssä:
 
 \begin{verbatim}
-    volatile uint8_t *
+    struct stepper_state_machine {
+        uint8_t phaseA_pin;
+        uint8_t phaseB_pin;
+        volatile uint8_t *phaseA_port;
+        volatile uint8_t *phaseB_port;
+        char state;
+    };
 \end{verbatim}
 
---    
+\subsection{Struct teitorakenteiden esitys muistissa}
 
 \verb+Struct+ tietorakentiden vertaileminen eri arkkitehtuureilla oli myös kiinnostavaa.
 RPI:n 32-bittin ARM arkkitehtuuri pyrkii asettamaan datan muistiosotteisiin jotka ovat neljällä jaollisia. 8-bittinen AVR ei kuitenkaan muistiosoitteien jaollisuudesta välitä.
 Tämä johtaa siihen, että structiin pakattua dataa ei voida turvallisesti siirtää suoraan ARM arkkitehtuurilta AVR arkkitehtuurille ilman että erikseen vamistetaan että tietorakenteiden esitys todella on sama molemmilla arkkitehtuuriella.
 Kirjoittaessa koodia jota on tarkoitus suorittaa molemilla arkkitehtuureilla pitää pitää mielessä että myös datatyyppien koot eroavat toisistaan. AVR:n \verb+int+ muuttuja on 16-bittinen, kun 32-bittisen ARM:n datatyyppi on 32-bittinen.
 Yleispätevää koodia saa kuitenkin kätevästi kirjoitettua käyttämällä \verb+<inttypes.h>+ määrittämiä datapyyppejä kuten \verb+uint8_t+ ja \verb+int32_t+
---
-printf puskurointi
+
+\subsection{Puskuroimaton kirjoitus päätteelle}
+\label{sub:Puskuroimaton kirjoitus paatteelle}
+
+Virheen korjaus viestejä kannataa tulostaa päätteellä käytäämällä \verb+fprintf(stderr, ...)+ tavallisen \verb+printf()+ sijasta, varsinkin kun työstää aika-kriittistä koodia. 
 
 \begin{itemize}
     \item POSIX
@@ -210,9 +218,11 @@ printf puskurointi
 \end{itemize}
 
   
---
+\subsection{Käytä oikeaa datalehteä}
+\label{sub:Kayta oikeaa datalehtea}
 
-Ojelmoitaessa PWM lähtöä moottoreiden ohjaamista varten oli vahingossa ATmega8 datalehti käytössä ATmega328 datalehden sijaan. Mikrokontrollert ovat melkein samanlaiset, mutta niisä ei kuitenkaan ole identtisiä ajastimia. 
+
+Ojelmoitaessa PWM lähtöä moottoreiden ohjaamista varten oli vahingossa ATmega8 datalehti käytössä ATmega328 datalehden sijaan. Mikrokontrollert ovat melkein samanlaiset, mutta niisä ei kuitenkaan ole identtisiä ajastimia, eikä koodi toiminut. 
 
 
 \end{document}

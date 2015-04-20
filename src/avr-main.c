@@ -9,8 +9,8 @@
 #include <stdint.h>
 #include <string.h>         // for memcpy()
 
-#include "dynamical_model.h"
-#include "stepper_ctl.h"
+#include "./dynamical_model.h"
+#include "./stepper_ctl.h"
 
 // defines for initializing the ATmega USART peripheral
 // Baudrate 115200 in Asynchronous normal mode
@@ -23,12 +23,12 @@
 // stepper motor control pins. Naming scheme: PIN Stepper [Left|Right] [A|B])
 #define PINSLA PD2
 #define PINSLB PD4
-#define PINSRB PD7
+#define PINSRA PD7
 #define PINSRB PB4
 // stepper motor  control ports
 #define PORTSLA PORTD
 #define PORTSLB PORTD
-#define PORTSRB PORTD
+#define PORTSRA PORTD
 #define PORTSRB PORTB
 //serial radio enable
 #define PINRADIO PB0
@@ -126,7 +126,7 @@ int main(int argc, char const *argv[]) {
     
     /* PB0 pin high enables radio comms using Xino-RF serial radio*/
     DDRB  |= (1<<PINRADIO);
-    PORTB |= (1<<PINRDAIO);
+    PORTB |= (1<<PINRADIO);
     
     /* Initialize usart0, used for radio comms to the controlling device */
     USART0_init();
@@ -136,7 +136,7 @@ int main(int argc, char const *argv[]) {
     
     /*debugging code */
     DDRB = 0xff;
-    a = atof("1.23");
+    float a = atof("1.23");
     _delay_ms(1000);
     if (a = 1.23){
         PORTB ^= 0xff; 
@@ -175,9 +175,11 @@ int main(int argc, char const *argv[]) {
             // read the speed data
         }
         
-        stepper_tick()
-        float delay_r = STEPPER_TICK_LEN/impl.velo_right;
-        float delay_l = STEPPER_TICK_LEN/impl.velo_left;
+        
+        stepper_tick(&left_stepper, CLOCKWISE);
+        delay_r = STEPPER_TICK_LEN/impl.velo_right;
+        delay_l = STEPPER_TICK_LEN/impl.velo_left;
+        _delay_ms(1000);
         
         
     }

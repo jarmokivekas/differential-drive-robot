@@ -65,6 +65,9 @@ void hid_translate_state_change(uint16_t button, char new_state, char state_arra
  Used to set recently declared key_state array into a know state, fill with 0x00
  @param key_state: array to be cleared, length is NUM_INDEXED_KEYS
  */
+/*
+ HACK: should be replaced with memset()
+ */
 void hid_clear_key_state(char key_state[]);
 
 

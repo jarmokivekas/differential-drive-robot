@@ -1,5 +1,4 @@
 #define BAUD 9600
-#define F_CPU 16000000L
 #include <avr/io.h>         // Special function register definitions, etc
 #include <avr/interrupt.h>  // for interrupt service routine prototypes 
 #include <util/setbaud.h>   // for definions related to usart baud rates
@@ -14,7 +13,7 @@
 
 // defines for initializing the ATmega USART peripheral
 // Baudrate 115200 in Asynchronous normal mode
-#define FOSC 16000000L // Clock Speed
+#define FOSC F_CPU // Clock Speed
 #define COMMS_UBRR ((FOSC/(16UL *BAUD))-1)
 
 
@@ -79,13 +78,29 @@ void USART0_init(){
     UCSR0C |= (0<<USBS0);
     // set frame format to 8-bit character size
     UCSR0C |= (0<<UCSZ02)|(1<<UCSZ01)|(1<<UCSZ00);
-    
-    
 }
 
 
 
-
+/**
+Initialize 16-bit timer1 for controlling the motor tick timings
+The timer is used in 'normal mode' as a simple counter clock.
+*/
+void TIMER1_init(){
+    /*
+    The default timer configuration on startup is fairy close to what
+    is needed for controlling the motor tick timing, not all setting need adjusting
+    */
+    
+    /* Enable the timer by setting the clock prescaler */
+    TCCR1B |= (1<<CS10); // prescaler value is 1
+    /* That's it */
+    
+    /*
+    XXX: access counter value in 16-bit register TCNT1 (read and write)
+    XXX: OVerflow flag TOV1 is located in the Interrupt Flag Register TIFR1 
+    */
+}
 
 
 
@@ -142,10 +157,6 @@ int main(int argc, char const *argv[]) {
         PORTB ^= 0xff; 
     }
     
-    /* holds data about the current desired state of the robot */
-    struct dynamic_implement impl = {.velo_right = 0.0, .velo_left = 0.0};
-    float delay_r;
-    float delay_l;
     
     
     /* Initialize stepper motor control structs */
@@ -166,21 +177,47 @@ int main(int argc, char const *argv[]) {
         .state = 0
     };
     
+    /* store stepper struct pointers in array allow iteration with for loop */
+    struct stepper_state_machine * motors[] = {&right_stepper, &left_stepper};
+    /* holds data about the current desired state of the robot */
+    struct dynamic_implement impl = {.velo_right = 0.0, .velo_left = 0.0};
+    /* The number of timer cycles between stepper motor ticks */
+    uint16_t motor_delay[2];
+    uint16_t motor_tick_period[2];
+
     
-    
-    /*** Main program loop ***/
-    
+    /*** Main program loop ***/    
     while (1) {
+        
+        
+        /* alter delay length if there are new commands received */
         if (serial_data_availabe){
             // read the speed data
+            // delay proper about of time, and then tick motor
+            motor_tick_period[0] =(int) (1000 * STEPPER_TICK_LEN/impl.velo_right);
+            motor_tick_period[1] =(int) (1000 * STEPPER_TICK_LEN/impl.velo_left);
+        }
+    
+        
+        /** Iterate over the motors and rotate one tick if necessary **/
+        /* store a momentary counter value to avoid unexpected side-effects */
+        int timer_value = STEPPER_TIME_COUNTER;
+        int i;
+        for (i = 0; i < 2; i++) {
+            uint16_t time_remaining = motor_delay[i] -= timer_value;
+            /* tick if we have waited long enough*/
+            if ( (time_remaining <= 0) && (!TOV1) ){
+                stepper_tick(motors[i], CLOCKWISE);
+                motor_delay[i] = motor_tick_period[i];
+            }
+            
         }
         
         
-        stepper_tick(&left_stepper, CLOCKWISE);
-        delay_r = STEPPER_TICK_LEN/impl.velo_right;
-        delay_l = STEPPER_TICK_LEN/impl.velo_left;
-        _delay_ms(1000);
         
+        
+        STEPPER_TIMER_DELAY |= delay_min;
+        stepper_tick(&left_stepper, CLOCKWISE);
         
     }
     return 0;

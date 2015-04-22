@@ -82,7 +82,7 @@ int main (int argc, char *argv[])
 		//debug_dump_array(key_state, NUM_INDEXED_KEYS);
 		debug_dump_commands(&command);
 		msg_idx = sprintf(msg_buffer, "$%g,%g#", impl.velo_left, impl.velo_right);
-		//write(uart_fd, "$12.12#\n", 8);
+		write(uart_fd, "a\x00\xff\x00 ", 8);
 		fprintf(stderr, "message:\t%s\nmsg_idx:\t%d\n", msg_buffer, msg_idx);
 
 		usleep(100000);

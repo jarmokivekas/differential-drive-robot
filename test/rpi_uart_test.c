@@ -3,7 +3,7 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <stdlib.h>
-
+#include <stdint.h>
 
 #define FLOAT_STR_MAX_LEN
 #define MSG_BUFFER_LEN 255
@@ -12,8 +12,6 @@
 
 int main(int argc, char const *argv[]){
 	
-	unsigned char velo_l = atoi(argv[2]);
-	printf("volecity is %d", velo_l);
 	int uart_fd = -1;
 	// removed O_NDELAY from list
 	uart_fd = open(argv[1], O_RDWR | O_NOCTTY | O_NONBLOCK| O_NDELAY);
@@ -35,29 +33,21 @@ int main(int argc, char const *argv[]){
 	tcflush(uart_fd, TCIFLUSH);
 	tcsetattr(uart_fd, TCSANOW, &options);
 	
-	char message_buffer[MSG_BUFFER_LEN];
 	
-	
-	// ^0.1231231,234.12341$
-	float a = 0.2341;
-	
-	
-	
-	char data[4];
-	data[0] = 'A';
-	data[3] = 'B';
-	char i;
-	for(i = 0; i < 256; ++i){
-		usleep(5000);
-		data[1] = i;
-		data[2] = i<<2 ; 
-		write(uart_fd, data, 4);
-		char recvData[1];
-		int len = 0;
+	uint16_t data[2];
+	char  msg_start[1] = {'a'};
+	int i;
+	for(i = 0; i < 64255; ++i){
+		usleep(50000);
+		data[0] = atoi(argv[2]);
+		data[1] = i  <<1; 
+		write(uart_fd,"a", 1);
+		write(uart_fd, data, 2*sizeof(uint16_t));
+		fprintf(stdout, "%d, %d\n", data[0], data[1]);
 	//	while(len = read(uart_fd, recvData, 1*sizeof(char))){
 	//		write(1, recvData, 1*sizeof(char));
 	//	}	
-	}
+	}	
 	usleep(500000);
 	
 	close(uart_fd);

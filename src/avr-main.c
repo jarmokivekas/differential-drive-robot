@@ -114,36 +114,30 @@ void TIMER1_init(){
 ISR(USART_RX_vect){
     cli();
     /* static variable will be initialized only once*/
-    static uint16_t data_buffer[2] = {0,0};
+    static uint16_t data_buffer[2];
     static char data_idx = 5;
     /** store command values, convert data to uint16_t **/
     if (data_idx <= 3){
-        /*
-        leftshift value 8 times in cases 0 and 2
-        use plain value in cases 1 and 3
-        the elements in the array have the value 0 when this operations starts
-        */
-        data_buffer[data_idx/2] += UDR0 << (8 * ((data_idx + 1)%2));
-        /* send feedback, mostly for debugging*/
-        uart_putchar('a' + data_idx);
+        data_buffer[data_idx/2] += UDR0 << (8 * ((data_idx)%2));
         data_idx++;
+        uart_putchar('A' + data_idx);
     }
     
     /* new if statement to allow fall-through */
     if( data_idx == 4 ){
-        serial_data_available = 1;
+        motor_tick_period[0] = data_buffer[0];
+        motor_tick_period[1] = data_buffer[1];
         data_idx++;
     }
-    else if(data_idx >= 5)
-        /* expect start of transmission*/
-        if (UDR0 == 's'){
-            serial_data_available = 0;
-            /* clear the command */
-            motor_tick_period[0] = 0;
-            motor_tick_period[1] = 0;
+    else if(data_idx >= 5){
+        /* expect start of tranmission, clear data buffer*/
+        if (UDR0 == 'a'){
+            data_buffer[0] = 0;
+            data_buffer[1] = 0;
             data_idx = 0;
-            uart_putchar('s');
+            uart_putchar('a');
         }
+        /* malformed data */
         else{
             uart_putchar('e');
         }
@@ -163,8 +157,8 @@ ISR(USART_RX_vect){
 int main(int argc, char const *argv[]) {
     
     /* PB0 pin high enables radio comms using Xino-RF serial radio*/
-    //DDRB  |= (1<<PINRADIO);
-    //PORTB |= (1<<PINRADIO);
+    DDRB  |= (1<<PINRADIO);
+    PORTB |= (1<<PINRADIO);
     
     TIMER1_init();
     

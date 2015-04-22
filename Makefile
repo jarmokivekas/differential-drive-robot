@@ -35,6 +35,11 @@ bin/hid_input_test: \
 	bin/hid_input.o
 	$(CC) -pthread $(CFLAGS) -o $@ $^
 	
+bin/stepper_ctl_test: bin/stepper_ctl_test.o
+	avr-gcc -Os -mmcu=atmega328p -DF_CPU=16000000L -c ./test/stepper_ctl_test.c  -o ./bin/stepper_ctl_test.o
+	avr-gcc -Os -mmcu=atmega328p -DF_CPU=16000000L -c ./src/stepper_ctl.c        -o ./bin/stepper_ctl.o
+	avr-gcc -Os -mmcu=atmega328p -DF_CPU=16000000L ./bin/stepper_ctl.o ./bin/stepper_ctl_test.o -o ./bin/stepper_ctl_test
+	
 	
 bin/%.o: src/%.c
 	$(CC) -pthread $(CFLAGS) -c -o $@ $^

@@ -1,6 +1,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
-#include "stepper_ctl.h"
+#include "../src/stepper_ctl.h"
 
 #define PLSA PB5
 #define PLSB PB3

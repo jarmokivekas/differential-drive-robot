@@ -34,6 +34,10 @@
 
 
 
+/* signal to main program loop that there is data to be read */
+char serial_data_available = 0;
+
+uint16_t motor_tick_period[2] = {200, 1000};
 
 
 
@@ -93,7 +97,7 @@ void TIMER1_init(){
     */
     
     /* Enable the timer by setting the clock prescaler */
-    TCCR1B |= (1<<CS10); // prescaler value is 1
+    TCCR1B |= (1<<CS12)|(1<<CS10); // prescaler value is 1
     /* That's it */
     
     /*
@@ -109,39 +113,60 @@ void TIMER1_init(){
  */
 ISR(USART_RX_vect){
     cli();
-    /* parse data here*/
-    /* echo received character */
-    uart_putchar(UDR0);
+    /* static variable will be initialized only once*/
+    static uint16_t data_buffer[2] = {0,0};
+    static char data_idx = 5;
+    /** store command values, convert data to uint16_t **/
+    if (data_idx <= 3){
+        /*
+        leftshift value 8 times in cases 0 and 2
+        use plain value in cases 1 and 3
+        the elements in the array have the value 0 when this operations starts
+        */
+        data_buffer[data_idx/2] += UDR0 << (8 * ((data_idx + 1)%2));
+        /* send feedback, mostly for debugging*/
+        uart_putchar('a' + data_idx);
+        data_idx++;
+    }
+    
+    /* new if statement to allow fall-through */
+    if( data_idx == 4 ){
+        serial_data_available = 1;
+        data_idx++;
+    }
+    else if(data_idx >= 5)
+        /* expect start of transmission*/
+        if (UDR0 == 's'){
+            serial_data_available = 0;
+            /* clear the command */
+            motor_tick_period[0] = 0;
+            motor_tick_period[1] = 0;
+            data_idx = 0;
+            uart_putchar('s');
+        }
+        else{
+            uart_putchar('e');
+        }
+    }
+    
     sei();
 }
 
 
 
-/**
-calculate how long between stepper tick for specifed velocity
-The function relies on 
-velo_angular: rotation speed of the motor, in degrees/second
-*/
-inline int tick_len_ms(float velo_angular){
-    return 360.0/STEPPER_TICK_NUM/velo_angular;
-}
 
 
 
 
 
 
-
-// buffer will be cast to float pointers
-char *velo_right_buffer;
-char *velo_left_buffer;
-/* signal to main program loop that there is data to be read */
-char serial_data_availabe;
 int main(int argc, char const *argv[]) {
     
     /* PB0 pin high enables radio comms using Xino-RF serial radio*/
-    DDRB  |= (1<<PINRADIO);
-    PORTB |= (1<<PINRADIO);
+    //DDRB  |= (1<<PINRADIO);
+    //PORTB |= (1<<PINRADIO);
+    
+    TIMER1_init();
     
     /* Initialize usart0, used for radio comms to the controlling device */
     USART0_init();
@@ -150,14 +175,16 @@ int main(int argc, char const *argv[]) {
     sei();
     
     /*debugging code */
-    DDRB = 0xff;
-    float a = atof("1.23");
-    _delay_ms(1000);
-    if (a = 1.23){
-        PORTB ^= 0xff; 
-    }
+    //DDRB = 0xff;
+    //float a = atof("1.23");
+    //_delay_ms(1000);
+    //if (a = 1.23){
+    //    PORTB ^= 0xff; 
+    //}
     
-    
+    /* set stepper control pins as ouputs */
+    DDRD |= (1<<PD2)|(1<<PD4)|(1<<PD7);
+    DDRB |= (1<<PB4);
     
     /* Initialize stepper motor control structs */
     
@@ -179,45 +206,51 @@ int main(int argc, char const *argv[]) {
     
     /* store stepper struct pointers in array allow iteration with for loop */
     struct stepper_state_machine * motors[] = {&right_stepper, &left_stepper};
-    /* holds data about the current desired state of the robot */
-    struct dynamic_implement impl = {.velo_right = 0.0, .velo_left = 0.0};
     /* The number of timer cycles between stepper motor ticks */
-    uint16_t motor_delay[2];
-    uint16_t motor_tick_period[2];
+    uint16_t motor_delay[2] = {10,10};
 
     
-    /*** Main program loop ***/    
+    /*** Main program loop ***/
+    TCNT1 = 1;
+    uint16_t timer_value;
+    uint16_t prev_timer_value;
+    int32_t time_remaining;
+    char overflow;
     while (1) {
         
-        
+        //if (TIFR1 & (1<<TOV1)){ uart_putchar('a');}
         /* alter delay length if there are new commands received */
-        if (serial_data_availabe){
             // read the speed data
             // delay proper about of time, and then tick motor
-            motor_tick_period[0] =(int) (1000 * STEPPER_TICK_LEN/impl.velo_right);
-            motor_tick_period[1] =(int) (1000 * STEPPER_TICK_LEN/impl.velo_left);
-        }
-    
+        //motor_tick_period[0] =(int) (1000 * STEPPER_TICK_LEN/impl.velo_right);
+        //    motor_tick_period[1] =(int) (1000 * STEPPER_TICK_LEN/impl.velo_left);
+
         
+        // clear overflow flag (write logic one)
+        //TIFR1 |= (1<<TOV1);
         /** Iterate over the motors and rotate one tick if necessary **/
         /* store a momentary counter value to avoid unexpected side-effects */
-        int timer_value = STEPPER_TIME_COUNTER;
-        int i;
+        timer_value = TCNT1;
+        overflow = TIFR1 & (1<<TOV1);
+        char i;
         for (i = 0; i < 2; i++) {
-            uint16_t time_remaining = motor_delay[i] -= timer_value;
+
+            time_remaining = motor_delay[i] - timer_value;
+
+            
             /* tick if we have waited long enough*/
-            if ( (time_remaining <= 0) && (!TOV1) ){
+            if ( (time_remaining <= 0) &&  !overflow ){
                 stepper_tick(motors[i], CLOCKWISE);
-                motor_delay[i] = motor_tick_period[i];
+                motor_delay[i] +=  motor_tick_period[i];
+            }
+            else if( overflow){
+                stepper_tick(motors[i], CLOCKWISE);
+                motor_delay[i] += motor_tick_period[i];
             }
             
         }
+        TIFR1 |= (1<<TOV1);
         
-        
-        
-        
-        STEPPER_TIMER_DELAY |= delay_min;
-        stepper_tick(&left_stepper, CLOCKWISE);
         
     }
     return 0;

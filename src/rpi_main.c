@@ -63,16 +63,12 @@ int main (int argc, char *argv[])
 	}
     	
 	/* keyboard commands are translated into abstract movement commands stored in the command struct */
-	struct movement_command command = {.rot_mul = 1,.trans_mul =1, .rot_magn=1.0,.trans_magn=1.0};
-   	char msg_buffer [256];
-	int msg_idx = 0; 
+	struct movement_command command = {.rot_mul = 1,.trans_mul =1, .rot_magn=12.0,.trans_magn=1.4};
 
 	/* structs passed to the dynamic model conversion function */
 	struct dynamic_implement impl = {.velo_right = 0, .velo_left = 0};
 	struct dynamic_design des = {.velo_translation = 0, .velo_rotation = 0};
-
 	while (1){
-		msg_idx = 0;
 		apply_keyboard_commands(key_state, &command);
 
 		des.velo_translation = command.trans_magn * command.trans_mul;
@@ -81,11 +77,53 @@ int main (int argc, char *argv[])
 
 		//debug_dump_array(key_state, NUM_INDEXED_KEYS);
 		debug_dump_commands(&command);
-		msg_idx = sprintf(msg_buffer, "$%g,%g#", impl.velo_left, impl.velo_right);
-		write(uart_fd, "a\x00\xff\x00 ", 8);
-		fprintf(stderr, "message:\t%s\nmsg_idx:\t%d\n", msg_buffer, msg_idx);
-
-		usleep(100000);
+        
+        /*
+        TODO: the next part of the logic should be done on the robot instead. 
+        parameters (clock frequency, timer prescaler motor ticks per rotation ) should
+        be defined at complile time instead of magic constants
+        */
+        
+        uint16_t motor_delay [2];
+        uint16_t motor_delay_prev[2];
+        float motor_delay_debug[2];
+        char send_new_commands;
+        int i;
+        for (i = 0; i < 2; i++) {
+            /* length of a counter tick on the robot */
+            /* XXX: magic numbers */
+            const float counter_tick_period = (1024.0/16000000.0);
+            //fprintf(stderr, "counter_tick_period:\t%f\n", counter_tick_period);
+            
+            /* how often the motor needs to tick for the specified angular velocity*/
+            /* XXX: magic number */
+            float motor_tick_period = i ? impl.velo_left/200.0 : impl.velo_right/200.0;
+            //fprintf(stderr, "motor_tick_period:\t%f\n", motor_tick_period);
+            float counter_ticks_per_motor_tick = motor_tick_period/counter_tick_period ;
+            //fprintf(stderr, "tick per tick:\t%f\n", counter_ticks_per_motor_tick);
+            motor_delay[i] = (uint16_t) counter_ticks_per_motor_tick;
+            if (motor_delay[i] != motor_delay_prev[i]) {
+                send_new_commands = 1;
+                motor_delay_prev[i] = motor_delay[i];
+            }
+            motor_delay_debug[i] = counter_ticks_per_motor_tick;
+        }
+        
+        /* debugging ouput */
+        fprintf(stderr, "velo 0 :\t%f\tvelo 1:\t%f\n", impl.velo_right, impl.velo_left);
+        fprintf(stderr, "delay 0:\t%f\tdelay 1:\t%f\n", motor_delay_debug[0],motor_delay_debug[1]);
+		fprintf(stderr, "delay 0:\t%d\tdelay 1:\t%d\n",motor_delay[0],motor_delay[1] );
+        
+        /* send new commands over usart only when needed*/
+        if (send_new_commands) {
+            write(uart_fd, "a" ,1);
+            write(uart_fd, motor_delay , 2*sizeof(uint16_t));
+            /* TODO: check uart response before clearing send flag */
+            send_new_commands = 0;
+        }
+        
+        fprintf(stderr, "\n");
+		usleep(50000);
 	}
 
 	return 0;

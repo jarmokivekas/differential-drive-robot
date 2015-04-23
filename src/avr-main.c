@@ -34,10 +34,8 @@
 
 
 
-/* signal to main program loop that there is data to be read */
-char serial_data_available = 0;
-
-uint16_t motor_tick_period[2] = {200, 1000};
+/* This array is modified inside the USART receive interrupt, declare volatile*/
+volatile uint16_t motor_tick_period[2] = {1000, 1000};
 
 
 
@@ -159,7 +157,7 @@ int main(int argc, char const *argv[]) {
     /* PB0 pin high enables radio comms using Xino-RF serial radio*/
     DDRB  |= (1<<PINRADIO);
     PORTB |= (1<<PINRADIO);
-    
+
     TIMER1_init();
     
     /* Initialize usart0, used for radio comms to the controlling device */
@@ -168,13 +166,6 @@ int main(int argc, char const *argv[]) {
     /* enable interrupts globally */
     sei();
     
-    /*debugging code */
-    //DDRB = 0xff;
-    //float a = atof("1.23");
-    //_delay_ms(1000);
-    //if (a = 1.23){
-    //    PORTB ^= 0xff; 
-    //}
     
     /* set stepper control pins as ouputs */
     DDRD |= (1<<PD2)|(1<<PD4)|(1<<PD7);
@@ -205,46 +196,27 @@ int main(int argc, char const *argv[]) {
 
     
     /*** Main program loop ***/
-    TCNT1 = 1;
-    uint16_t timer_value;
-    uint16_t prev_timer_value;
-    int32_t time_remaining;
-    char overflow;
     while (1) {
         
-        //if (TIFR1 & (1<<TOV1)){ uart_putchar('a');}
-        /* alter delay length if there are new commands received */
-            // read the speed data
-            // delay proper about of time, and then tick motor
-        //motor_tick_period[0] =(int) (1000 * STEPPER_TICK_LEN/impl.velo_right);
-        //    motor_tick_period[1] =(int) (1000 * STEPPER_TICK_LEN/impl.velo_left);
-
         
-        // clear overflow flag (write logic one)
-        //TIFR1 |= (1<<TOV1);
         /** Iterate over the motors and rotate one tick if necessary **/
         /* store a momentary counter value to avoid unexpected side-effects */
-        timer_value = TCNT1;
-        overflow = TIFR1 & (1<<TOV1);
+        unit16_t timer_value = TCNT1;
+        char overflow = TIFR1 & (1<<TOV1);
         char i;
         for (i = 0; i < 2; i++) {
-
-            time_remaining = motor_delay[i] - timer_value;
-
-            
-            /* tick if we have waited long enough*/
-            if ( (time_remaining <= 0) &&  !overflow ){
+            motor_delay[i] += motor_tick_period[i];
+            int_32_t time_remaining = motor_delay[i] - timer_value;
+            /* tick if we have waited long enough or there has been a timer overflow */
+            if (   ((time_remaining <= 0) &&  !overflow)   ||  overflow ){
+                /* TODO: get the right direction */
                 stepper_tick(motors[i], CLOCKWISE);
-                motor_delay[i] +=  motor_tick_period[i];
-            }
-            else if( overflow){
-                stepper_tick(motors[i], CLOCKWISE);
-                motor_delay[i] += motor_tick_period[i];
             }
             
         }
-        TIFR1 |= (1<<TOV1);
         
+        /* clear the overflow flag*/
+        TIFR1 |= (1<<TOV1);
         
     }
     return 0;

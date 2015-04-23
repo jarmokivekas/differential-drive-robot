@@ -18,7 +18,7 @@
 
 
 /* This array is modified inside the USART receive interrupt, declare volatile*/
-volatile uint16_t motor_tick_period[2] = {100, 100};
+volatile uint16_t motor_tick_period[2] = {1000, 1000};
 
 
 
@@ -169,20 +169,19 @@ int main(int argc, char const *argv[]) {
         /* store a momentary counter value to avoid unexpected side-effects */
         uint16_t timer_value = TCNT1;
         char overflow = TIFR1 & (1<<TOV1);
-        char i;
-        for (i = 0; i < 2; i++) {
-            int32_t time_remaining = motor_delay[i] - timer_value;
-            /* tick if we have waited long enough or there has been a timer overflow */
-            if (   ((time_remaining <= 0) &&  !overflow)   ||  overflow ){
-                /* TODO: get the right direction */
-                stepper_tick(motors[i], CLOCKWISE);
-            }
-            motor_delay[i] += motor_tick_period[i];
-            
-        }
-        
         /* clear the overflow flag*/
         TIFR1 |= (1<<TOV1);
+        char i;
+        for (i = 0; i < 2; i++) {
+            int32_t time_remaining = motor_delay[i] - (timer_value + 0xffff*overflow);
+            /* tick if we have waited long enough or there has been a timer overflow */
+            if (time_remaining <= 0){
+                /* TODO: get the right direction */
+                stepper_tick(motors[i], CLOCKWISE);
+                motor_delay[i] += motor_tick_period[i];
+            }
+        }
+        
         
     }
     return 0;

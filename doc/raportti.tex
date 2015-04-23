@@ -81,8 +81,11 @@ Jarmo Kivekäs 1302928
 
 Tämä raportti käsittelee robottia joka toteutettiin harjoitustyönä Ohjelmoinnin perusteet kurssia varten.
 Harjoitustyön tarkoituksen oli oppia järjestelmäläheistä ohjelmointia ARM sekä AVR ympäristäissä.
-Raportin sekä siin esitetyn materiaalin on laatinut Jarmo Kivekäs.
+Raportin sekä siinä esitetyn materiaalin on laatinut Jarmo Kivekäs.
 
+Monet (jopa suurin osa) työssä toteutetuista asioista olisi voinut toteuttaa yksinkertaisemmin käyttämällä valmiita kirjastoja. Oppimistavoitteiden saavuttamiseksi on keskitytty järjestelmän toteuttamiseen alhaisella abstraktio tasolla käyttäen paljon järjestelmäkohtaista koodia, sen sijaan että oltaisiin pyritty toteuttamaan monipuolinen järjestelmä. Työssä on käytetty lähinnä avr-libc:n toimintoja, omia otsikkotiedostoja sekä joitain otsikkotiedostoja jotka kuuluvat vaikona linuxin \verb+gcc+ asennukseen.
+
+Työssä panostettiin myös vahvaan matemaattisenn oikaoppisuuteen ja välttäen empiiristä `mitoitusta' kokeilemalla arvoja esim. ajastimen kalibrointia varten yms.
 
 \section{Järjestelmä arkkitehtuuri}
 \label{sec:Jarjestelma arkkitehtuuri}
@@ -96,7 +99,18 @@ Robotin ohjaus käyttöliittymän kautta tapahtuu kokonaan RPI:n liitetyn ulkois
 \subsection{USB käyttöliittymälaitteiden tulkitseminen}
 \label{sub:USB kayttoliittymalaitteiden tulkitseminen}
 
-Näppäimisän kautta annetut käskyt luetaan erityisestä \verb+/dev/input/eventX+ tiedostosta. 
+Näppäimistön kautta annetut käskyt luetaan erityisestä \verb+/dev/input/eventX+ tiedostosta. Näppäinpainalluksia tulkitseva moduuli on toteutettu tiedostossa \verb+src/hid_input.c+.
+
+Näppämistöä tulkistseva koodia suoritetaan omassa ohjelma säikeessään. Säikeen aloittaminen on toteutettu käyttämällä POSIX säikeitä.
+
+Uuden säikeen aloittavalle \verb+pthread_create()+ funktiolle annetaan kolmanneksi argumentiksi funkio-osoitin funktioon joka halutaan suorittaa uudessa säikeessä. Neljäntenä argumenttina annetaan yksi \verb+void *+ -osoitin jonka kautta kaikki funktion argumentit annetaan. Tässä toteutuksessa argumenttina on pelkkä \verb+void *+:ksi muutettu merkkijonon osoitin (Tiedosto josta USB näppämimistöä tulkitaan).
+
+\begin{verbatim}
+    pthread_t polling_thread_id;
+    pthread_create(&polling_thread_id, NULL, hid_polling_loop, (void *)hid_device);
+\end{verbatim}
+
+Ohjelman säikeiden välillä siiretään dataa yhteisessä muistissa olevan muuttujan kautta. Yksi säkeistä aina muokkaa dataa ja toinen aina lukee, joten ei tarvittu toteuttaa mutex-järjestelmään tiedon eheyden varmistamiseksi.
 
 \section{Ohjaus teoria}
 \label{sec:Ohjaus teoria}
@@ -161,16 +175,22 @@ Soveltamalla malleja (\ref{equ:diff-drive-implementation}) ja (\ref{equ:diff-dri
 
 
 
-\subsection{Ohjaus silmukan malli}
-\label{sub:Ohjaus silmukan malli}
-
-PID -ohjain
-
 
 \section{Kommunikointi protokolla}
 \label{sec:Kommunikointi protokilla}
 
 Sarjaväylän kommunikaatio toteutettiin AVRllä käyttäen mikro-ohjaimen tuottamaa ISR -funktiokutsua joka tapahtuu aina kun sarjavälälle on saapunut tavu dataa. \verb+printf()+ -perheen funktioiden vaatima \verb+stdio+ puskuri toteutettiin myös, mutta funktioita ei kuitenkaan päädytty käyttämään suuren ROM vaatimuksien takia (yli 1000 tavua pelkän \verb+printf()+ käyttämistä varten). 
+
+Robotti tallentaa viimeksi saadut komennot, joten uusi komentoja tarvitsee lähettää sarjaväylän yli vain sillon kun niihin on tapahtunut muutos.
+
+Lähetetty viesti koostuu yhden tavun pituisesta alkumerkistä, jonka jälkeen tulee kaksi \verb+uint16_t+ arvoa. Arvot kertovat kuinka nopeasti renkaiden kuulu pyöriä (kuinka monta ajastimen aikayksikköä jokaisen askelmoottorin askeleen välillä). 
+
+\section{Moottorien ohjaaminen}
+\label{sec:Moottorien ohjaaminen}
+
+
+Moottorieden ohjausta varten käytetään 16-bittistä ajastinta. Ajastimen esijakaja on asetttu olemaan 1024 ja mikro-ohjaimen kellotaajuus on 16 MHz. Tästä saadaan että kello jonka tarkkuus (yhden aikayksikön pituus) on $1024/16 \text{ MHz} = 64 \mu s $. Ajastimen laskin kierähtää takaisin nollaan $2^{16} * 64\mu s \approx 4.2 s$ välein. 
+
 
 \section{Oppitulosket}
 \label{sec:Oppitulosket}
@@ -209,20 +229,15 @@ Yleispätevää koodia saa kuitenkin kätevästi kirjoitettua käyttämällä \v
 \subsection{Puskuroimaton kirjoitus päätteelle}
 \label{sub:Puskuroimaton kirjoitus paatteelle}
 
-Virheen korjaus viestejä kannataa tulostaa päätteellä käytäämällä \verb+fprintf(stderr, ...)+ tavallisen \verb+printf()+ sijasta, varsinkin kun työstää aika-kriittistä koodia. 
-
-\begin{itemize}
-    \item POSIX
-    \item ioctl
-    
-\end{itemize}
+Virheen korjaus viestejä kannataa tulostaa päätteellä käyttämällä \verb+fprintf(stderr, ...)+ tavallisen \verb+printf()+ sijasta, varsinkin kun työstää aika-kriittistä koodia. Puskuroidun tulostuksen sivuvaikutus tuli esiin, kun ohjelma RPIllä suoritettava ohjelma käyttäytyi eri tavall riippuen siitä, että suoritettiinko se itsenäisesti vai \verb+strace+ analysoimana. 
 
   
 \subsection{Käytä oikeaa datalehteä}
 \label{sub:Kayta oikeaa datalehtea}
 
 
-Ojelmoitaessa PWM lähtöä moottoreiden ohjaamista varten oli vahingossa ATmega8 datalehti käytössä ATmega328 datalehden sijaan. Mikrokontrollert ovat melkein samanlaiset, mutta niisä ei kuitenkaan ole identtisiä ajastimia, eikä koodi toiminut. 
+Ojelmoitaessa PWM lähtöä (ei käytössä lopullisessa järjestlmässä) moottoreiden ohjaamista varten oli vahingossa ATmega8 datalehti käytössä ATmega328 datalehden sijaan. Mikrokontrollert ovat melkein samanlaiset, mutta niissä ei kuitenkaan ole identtiset ajastimet, eikä koodi toiminut. 
+
 
 
 \end{document}

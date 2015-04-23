@@ -17,25 +17,8 @@
 #define COMMS_UBRR ((FOSC/(16UL *BAUD))-1)
 
 
-/* pin mapping definition, so they are easily changed later if needed */
-
-// stepper motor control pins. Naming scheme: PIN Stepper [Left|Right] [A|B])
-#define PINSLA PD2
-#define PINSLB PD4
-#define PINSRA PD7
-#define PINSRB PB4
-// stepper motor  control ports
-#define PORTSLA PORTD
-#define PORTSLB PORTD
-#define PORTSRA PORTD
-#define PORTSRB PORTB
-//serial radio enable
-#define PINRADIO PB0
-
-
-
 /* This array is modified inside the USART receive interrupt, declare volatile*/
-volatile uint16_t motor_tick_period[2] = {1000, 1000};
+volatile uint16_t motor_tick_period[2] = {100, 100};
 
 
 
@@ -44,10 +27,6 @@ void uart_putchar(char c) {
     while ((UCSR0A & (1<<UDRE0)) == 0){};
     UDR0 = c;
 }
-
-
-
-
 
 char uart_getchar(void) {
     /* Wait until data is present in the buffer */
@@ -87,21 +66,13 @@ void USART0_init(){
 /**
 Initialize 16-bit timer1 for controlling the motor tick timings
 The timer is used in 'normal mode' as a simple counter clock.
+XXX: access counter value in 16-bit register TCNT1 (read and write)
+XXX: Timer OVerflow flag TOV1 is located in the Interrupt Flag Register TIFR1 
 */
-void TIMER1_init(){
-    /*
-    The default timer configuration on startup is fairy close to what
-    is needed for controlling the motor tick timing, not all setting need adjusting
-    */
-    
+void TIMER1_init(){    
     /* Enable the timer by setting the clock prescaler */
-    TCCR1B |= (1<<CS12)|(1<<CS10); // prescaler value is 1
+    TCCR1B |= (1<<CS12)|(1<<CS10); // prescaler value is 1024
     /* That's it */
-    
-    /*
-    XXX: access counter value in 16-bit register TCNT1 (read and write)
-    XXX: OVerflow flag TOV1 is located in the Interrupt Flag Register TIFR1 
-    */
 }
 
 
@@ -155,63 +126,58 @@ ISR(USART_RX_vect){
 int main(int argc, char const *argv[]) {
     
     /* PB0 pin high enables radio comms using Xino-RF serial radio*/
-    DDRB  |= (1<<PINRADIO);
-    PORTB |= (1<<PINRADIO);
+    DDRB  |= (1<<PB0);
+    PORTB |= (1<<PB0);
 
-    TIMER1_init();
-    
-    /* Initialize usart0, used for radio comms to the controlling device */
-    USART0_init();
-    
-    /* enable interrupts globally */
-    sei();
-    
-    
     /* set stepper control pins as ouputs */
     DDRD |= (1<<PD2)|(1<<PD4)|(1<<PD7);
     DDRB |= (1<<PB4);
+
+    /* Initialize hardware peripherals */
+    TIMER1_init();    
+    USART0_init();
     
     /* Initialize stepper motor control structs */
-    
-    struct stepper_state_machine right_stepper = {
-        .phaseA_pin = PINSRA,
-        .phaseB_pin = PINSRB,
-        .phaseA_port = &PORTSRA,
-        .phaseB_port = &PORTSRB,
+    struct stepper_state_machine left_stepper = {
+        .phaseA_pin = PD2,
+        .phaseB_pin = PD4,
+        .phaseA_port = &PORTD,
+        .phaseB_port = &PORTD,
         .state = 0
     };
     
-    struct stepper_state_machine left_stepper = {
-        .phaseA_pin = PINSLA,
-        .phaseB_pin = PINSLB,
-        .phaseA_port = &PORTSLA,
-        .phaseB_port = &PORTSLB,
+    struct stepper_state_machine right_stepper = {
+        .phaseA_pin = PD7,
+        .phaseB_pin = PB4,
+        .phaseA_port = &PORTD,
+        .phaseB_port = &PORTB,
         .state = 0
     };
     
     /* store stepper struct pointers in array allow iteration with for loop */
     struct stepper_state_machine * motors[] = {&right_stepper, &left_stepper};
     /* The number of timer cycles between stepper motor ticks */
-    uint16_t motor_delay[2] = {10,10};
+    uint16_t motor_delay[2] = {100,100};
 
-    
+    /* enable global interrupts for USART receive interrupt */
+    sei();
     /*** Main program loop ***/
     while (1) {
         
         
         /** Iterate over the motors and rotate one tick if necessary **/
         /* store a momentary counter value to avoid unexpected side-effects */
-        unit16_t timer_value = TCNT1;
+        uint16_t timer_value = TCNT1;
         char overflow = TIFR1 & (1<<TOV1);
         char i;
         for (i = 0; i < 2; i++) {
-            motor_delay[i] += motor_tick_period[i];
-            int_32_t time_remaining = motor_delay[i] - timer_value;
+            int32_t time_remaining = motor_delay[i] - timer_value;
             /* tick if we have waited long enough or there has been a timer overflow */
             if (   ((time_remaining <= 0) &&  !overflow)   ||  overflow ){
                 /* TODO: get the right direction */
                 stepper_tick(motors[i], CLOCKWISE);
             }
+            motor_delay[i] += motor_tick_period[i];
             
         }
         

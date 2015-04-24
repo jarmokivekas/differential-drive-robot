@@ -7,13 +7,14 @@
 
 #include "./dynamical_model.h"
 #include "./stepper_ctl.h"
+#include "./avr_comms.h"
 
 
 
 /* This array is modified inside the USART receive interrupt, declare volatile*/
 /* this will be accessed as extern from avr_comms.c */
 volatile uint16_t GLOBAL_motor_tick_period[2] = {1000, 1000};
-
+volatile char GLOBAL_motor_direction = 0x00;
 
 
 /**
@@ -85,7 +86,7 @@ int main(int argc, char const *argv[]) {
         char overflow = TIFR1 & (1<<TOV1);
         /* clear the overflow flag*/
         TIFR1 |= (1<<TOV1);
-        char i;
+        unsigned char i;
         for (i = 0; i < 2; i++) {
             int32_t time_remaining = motor_delay[i] - (timer_value + 0xffff*overflow);
             /* tick if we have waited long enough or there has been a timer overflow */

@@ -1,4 +1,4 @@
-#include <arv/io.h>         // SFR definitions
+#include <avr/io.h>         // SFR definitions
 #include <avr/interrupt.h>  // for interrupt service routine prototypes 
 #include "./avr_comms.h"
 
@@ -49,7 +49,8 @@ void USART0_init(){
 
 
 
-
+char GLOBAL_motor_direction;
+uint16_t GLOBAL_motor_tick_period[2];
 
 /** 
  Interrupt service routine for the USART receive character  interrupt
@@ -57,9 +58,9 @@ void USART0_init(){
 ISR(USART_RX_vect){
     cli();
     /* static variable will be allocated only once*/
-    static char byte_idx = 8;
+    static uint8_t byte_idx = 8;
     static struct command_message msg_struct;
-    static char *msg_array = &msg_struct;
+    static char *msg_array = (char *) &msg_struct;
 
     /** store id, speeds and direction **/
     if (byte_idx <= 6){
@@ -81,14 +82,14 @@ ISR(USART_RX_vect){
     }
     
     /* wait for transmission to start */
-    else if (byte_idx >= 8){
-        if (UDR0 == 'a'){
-            msg_struct.checksum = 0;
-            byte_idx = 0;
-            USART0_putchar('a');
-        }
-        else{USART0_putchar('e');} /* malformed or non relevant data */
+    else if (byte_idx >= 8 && UDR0 == 'a'){
+        msg_struct.checksum = 0;
+        byte_idx = 0;
+        USART0_putchar('a');
     }
+    
+    /* malformed or non relevant data */
+    else{USART0_putchar('e');}
     
     sei();
 }

@@ -36,7 +36,7 @@ struct stepper_state_machine {
     // current state of the motor (in the tick loop).
     // the value is a 2-bit integer where phaseB_pin (msb) phaseA_pin (lsb) 
     // i/o status are the bit values
-    char state;
+    uint8_t state;
 };
 
 

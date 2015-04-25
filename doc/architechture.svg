@@ -9,8 +9,8 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="744.09448819"
-   height="1052.3622047"
+   width="676.71429"
+   height="725.435"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
@@ -24,9 +24,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="437.06829"
-     inkscape:cy="692.89512"
+     inkscape:zoom="0.7"
+     inkscape:cx="315.50432"
+     inkscape:cy="388.47969"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -34,7 +34,11 @@
      inkscape:window-height="744"
      inkscape:window-x="0"
      inkscape:window-y="24"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     fit-margin-left="10"
+     fit-margin-right="10"
+     fit-margin-bottom="10"
+     fit-margin-top="10" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -50,215 +54,393 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
-    <rect
-       style="fill:none;stroke:#2d7db3;stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-       id="rect2989"
-       width="466.69049"
-       height="102.02541"
-       x="106.06602"
-       y="337.17419" />
+     id="layer1"
+     transform="translate(-10.928572,-94.284322)">
     <text
        xml:space="preserve"
        style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
-       x="110.10663"
-       y="357.37723"
-       id="text3759"
+       x="121.21831"
+       y="414.95593"
+       id="text3053"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
-         x="110.10663"
-         y="357.37723"
-         id="tspan3763">Dynamical Model</tspan></text>
-    <rect
-       style="fill:none;stroke:#2d7db3;stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-       id="rect2989-3"
-       width="664.68036"
-       height="309.10669"
-       x="13.63706"
-       y="553.3468" />
-    <rect
-       style="fill:none;stroke:#2d7db3;stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-       id="rect3785"
-       width="633.3656"
-       height="393.95959"
-       x="2.0203056"
-       y="69.483749"
-       ry="0" />
+         id="tspan3055"
+         x="121.21831"
+         y="414.95593" /></text>
     <text
        xml:space="preserve"
        style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
-       x="135.36044"
-       y="394.75287"
-       id="text3787"
+       x="75.761444"
+       y="432.12851"
+       id="text3061"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
-         x="135.36044"
-         y="394.75287"
-         id="tspan3868">Translate signals between implementation and design model</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
-       x="137.38074"
-       y="415.96609"
-       id="text3791"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3793"
-         x="137.38074"
-         y="415.96609" /></text>
-    <text
-       xml:space="preserve"
-       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
-       x="125.25892"
-       y="545.26562"
-       id="text3795"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3797" /></text>
-    <text
-       xml:space="preserve"
-       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
-       x="85.862968"
-       y="586.68188"
-       id="text3852"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3854"
-         x="85.862968"
-         y="586.68188">Xino RF</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
-       x="146.47212"
-       y="300.80869"
-       id="text3856"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         x="146.47212"
-         y="300.80869"
-         id="tspan3860">Socket IPC</tspan><tspan
-         sodipodi:role="line"
-         x="146.47212"
-         y="319.55869"
-         id="tspan3864" /></text>
-    <rect
-       style="fill:none;stroke:#2d7db3;stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-       id="rect3866"
-       width="334.36057"
-       height="150.51274"
-       x="42.426403"
-       y="103.82895" />
-    <text
-       xml:space="preserve"
-       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
-       x="163.64471"
-       y="521.02197"
-       id="text3872"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         x="163.64471"
-         y="521.02197"
-         id="tspan3876">Serial communication over wireless</tspan></text>
-    <rect
-       style="fill:none;stroke:#2d7db3;stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-       id="rect3884"
-       width="278.80209"
-       height="49.497475"
-       x="142.1312"
-       y="492.02304" />
-    <rect
-       style="fill:none;stroke:#2d7db3;stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-       id="rect3888"
-       width="177.78683"
-       height="59.598999"
-       x="116.86866"
-       y="740.70123" />
-    <text
-       xml:space="preserve"
-       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
-       x="135.36044"
-       y="773.56012"
-       id="text3890"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3892"
-         x="135.36044"
-         y="773.56012">Direct motor control</tspan></text>
-    <rect
-       style="fill:none;stroke:#2d7db3;stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-       id="rect3894"
-       width="285.87317"
-       height="41.416256"
-       x="142.26152"
-       y="630.91693" />
-    <text
-       xml:space="preserve"
-       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
-       x="182.83762"
-       y="651.33167"
-       id="text3896"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3898"
-         x="182.83762"
-         y="651.33167">Serial protocol decoder/encoder</tspan></text>
+         id="tspan3063"
+         x="75.761444"
+         y="432.12851" /></text>
+    <g
+       id="g3245">
+      <text
+         sodipodi:linespacing="125%"
+         id="text3045"
+         y="176.00159"
+         x="68.635521"
+         style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+         xml:space="preserve"><tspan
+           y="176.00159"
+           x="68.635521"
+           id="tspan3047"
+           sodipodi:role="line">USB näppäimistö</tspan></text>
+      <text
+         sodipodi:linespacing="125%"
+         id="text3049"
+         y="208.41144"
+         x="70.030518"
+         style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+         xml:space="preserve"><tspan
+           y="208.41144"
+           x="70.030518"
+           id="tspan3051"
+           sodipodi:role="line">/dev/input/event tulkitseminen</tspan></text>
+      <rect
+         y="150.32137"
+         x="49.497475"
+         height="73.741234"
+         width="304.62427"
+         id="rect3121"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    </g>
+    <g
+       id="g3257">
+      <text
+         sodipodi:linespacing="125%"
+         id="text3065"
+         y="328.9563"
+         x="69.280518"
+         style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+         xml:space="preserve"><tspan
+           y="328.9563"
+           x="69.280518"
+           id="tspan3067"
+           sodipodi:role="line">abstrakti liikkeen esitys</tspan></text>
+      <text
+         sodipodi:linespacing="125%"
+         id="text3069"
+         y="361.50113"
+         x="68.860519"
+         style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+         xml:space="preserve"><tspan
+           y="361.50113"
+           x="68.860519"
+           id="tspan3071"
+           sodipodi:role="line">robotin mekaniikkaan sovitettu esitys</tspan></text>
+      <text
+         sodipodi:linespacing="125%"
+         id="text3073"
+         y="394.04602"
+         x="68.860519"
+         style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+         xml:space="preserve"><tspan
+           y="394.04602"
+           x="68.860519"
+           id="tspan3075"
+           sodipodi:role="line">robotin ohjelmointiin sovitettu esitys</tspan></text>
+      <text
+         sodipodi:linespacing="125%"
+         id="text3081"
+         y="428.11334"
+         x="69.700523"
+         style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+         xml:space="preserve"><tspan
+           y="428.11334"
+           x="69.700523"
+           id="tspan3083"
+           sodipodi:role="line">tiedon serialisointi</tspan></text>
+      <rect
+         y="305.41785"
+         x="48.992393"
+         height="140.41132"
+         width="306.58139"
+         id="rect3121-6"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    </g>
+    <g
+       id="g3273"
+       transform="translate(0,94)">
+      <text
+         sodipodi:linespacing="125%"
+         id="text3085"
+         y="549.97626"
+         x="69.40052"
+         style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+         xml:space="preserve"><tspan
+           y="549.97626"
+           x="69.40052"
+           id="tspan3087"
+           sodipodi:role="line">serialisoinnin purkaminen</tspan></text>
+      <rect
+         y="520.92041"
+         x="48.487328"
+         height="47.477169"
+         width="307.08636"
+         id="rect3121-6-8"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    </g>
+    <g
+       id="g3283"
+       transform="translate(0,94)">
+      <text
+         sodipodi:linespacing="125%"
+         id="text3093"
+         y="670.86969"
+         x="68.84552"
+         style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+         xml:space="preserve"><tspan
+           id="tspan3097"
+           y="670.86969"
+           x="68.84552"
+           sodipodi:role="line">moottoreiden ohajus ajastimen avulla</tspan></text>
+      <rect
+         y="644.58032"
+         x="48.487324"
+         height="45.456863"
+         width="307.08636"
+         id="rect3121-6-8-6"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    </g>
+    <g
+       id="g3252">
+      <text
+         sodipodi:linespacing="125%"
+         id="text3057"
+         y="268.54471"
+         x="60.462044"
+         style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+         xml:space="preserve"><tspan
+           y="268.54471"
+           x="60.462044"
+           id="tspan3059"
+           sodipodi:role="line">näppäinpainallukset yhteisessä muistissa</tspan></text>
+      <rect
+         y="245.51425"
+         x="49.495003"
+         height="39.396564"
+         width="305.06613"
+         id="rect3121-3"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    </g>
+    <g
+       id="g3268"
+       transform="translate(0,38)">
+      <text
+         sodipodi:linespacing="125%"
+         id="text3077"
+         y="491.13867"
+         x="72.979256"
+         style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+         xml:space="preserve"><tspan
+           y="491.13867"
+           x="72.979256"
+           id="tspan3079"
+           sodipodi:role="line">langaton sarjaväylä</tspan></text>
+      <rect
+         y="465.88455"
+         x="48.992378"
+         height="40.406715"
+         width="305.8522"
+         id="rect3121-3-2"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    </g>
+    <g
+       id="g3278"
+       transform="translate(0,94)">
+      <text
+         sodipodi:linespacing="125%"
+         id="text3089"
+         y="609.89502"
+         x="71.686333"
+         style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+         xml:space="preserve"><tspan
+           y="609.89502"
+           x="71.686333"
+           id="tspan3091"
+           sodipodi:role="line">ohjausdata yhteisessä muistissa</tspan></text>
+      <rect
+         y="586.01599"
+         x="48.145317"
+         height="40.406715"
+         width="306.5665"
+         id="rect3121-3-3"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    </g>
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 285.1981,672.33319 0,68.36804"
-       id="path3900"
-       inkscape:connector-type="orthogonal"
+       d="m 201.91285,224.0626 0.0601,21.45165"
+       id="path3288"
+       inkscape:connector-type="polyline"
        inkscape:connector-curvature="0"
-       inkscape:connection-start="#rect3894"
+       inkscape:connection-start="#g3245"
        inkscape:connection-start-point="d4"
-       inkscape:connection-end="#rect3888"
+       inkscape:connection-end="#g3252"
+       inkscape:connection-end-point="d4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 202.07357,284.91082 0.0474,20.50703"
+       id="path3290"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g3252"
+       inkscape:connection-start-point="d4"
+       inkscape:connection-end="#g3257"
+       inkscape:connection-end-point="d4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 202.11067,445.82916 -0.14257,58.05539"
+       id="path3292"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g3257"
+       inkscape:connection-start-point="d4"
+       inkscape:connection-end="#g3268"
+       inkscape:connection-end-point="d4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 201.93824,544.29127 0.0691,70.62914"
+       id="path3294"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g3268"
+       inkscape:connection-start-point="d4"
+       inkscape:connection-end="#g3273"
+       inkscape:connection-end-point="d4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 201.79839,662.39758 -0.17227,17.61841"
+       id="path3296"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g3273"
+       inkscape:connection-start-point="d4"
+       inkscape:connection-end="#g3278"
+       inkscape:connection-end-point="d4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 201.62764,720.42271 0.17891,18.15761"
+       id="path3302"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#g3278"
+       inkscape:connection-start-point="d4"
+       inkscape:connection-end="#g3283"
        inkscape:connection-end-point="d4" />
     <rect
-       style="fill:none;stroke:#2d7db3;stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-       id="rect3902"
-       width="192.93913"
-       height="56.568542"
-       x="300.79486"
-       y="694.20813" />
+       style="opacity:0;fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect4074"
+       width="412.85715"
+       height="321.42856"
+       x="24.285715"
+       y="129.50504" />
+    <rect
+       style="opacity:0;fill:none;stroke:#1a1a1a;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:3, 3;stroke-dashoffset:0"
+       id="rect4094"
+       width="655.71429"
+       height="340"
+       x="21.428572"
+       y="125.21932" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:3, 3;stroke-dashoffset:0"
+       id="rect4100"
+       width="647.14288"
+       height="340"
+       x="27.142857"
+       y="123.79076" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:3, 3;stroke-dashoffset:0"
+       id="rect4100-9"
+       width="647.14288"
+       height="218.57143"
+       x="27.857143"
+       y="590.64789" />
     <text
        xml:space="preserve"
        style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
-       x="317.1879"
-       y="709.92047"
-       id="text3904"
+       x="435.71429"
+       y="188.07648"
+       id="text4120"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
-         id="tspan3906"
-         x="317.1879"
-         y="709.92047">Read sensor input</tspan></text>
-    <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 285.1981,630.91693 0,-89.39641"
-       id="path3124"
-       inkscape:connector-type="orthogonal"
-       inkscape:connector-curvature="0"
-       inkscape:connection-start="#rect3894"
-       inkscape:connection-start-point="d4"
-       inkscape:connection-end="#rect3884"
-       inkscape:connection-end-point="d4" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 339.41126,439.19961 0,52.82343"
-       id="path3126"
-       inkscape:connector-type="orthogonal"
-       inkscape:connector-curvature="0"
-       inkscape:connection-start="#rect2989"
-       inkscape:connection-start-point="d4"
-       inkscape:connection-end="#rect3884"
-       inkscape:connection-end-point="d4" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 397.26443,672.33319 0,21.87494"
-       id="path3128"
-       inkscape:connector-type="orthogonal"
-       inkscape:connector-curvature="0"
-       inkscape:connection-start="#rect3894"
-       inkscape:connection-start-point="d4"
-       inkscape:connection-end="#rect3902"
-       inkscape:connection-end-point="d4" />
+         id="tspan4122"
+         x="435.71429"
+         y="188.07648" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       x="25.714285"
+       y="115.21932"
+       id="text4124"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4126"
+         x="25.714285"
+         y="115.21932">Raspberry Pi</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       x="27.857143"
+       y="584.21936"
+       id="text4128"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4130"
+         x="27.857143"
+         y="584.21936">XinoRF</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       x="384.28571"
+       y="192.36218"
+       id="text4132"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4134"
+         x="384.28571"
+         y="192.36218">Omassa POSIX säikeessä</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       x="384.28571"
+       y="378.07648"
+       id="text4136"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4138"
+         x="384.28571"
+         y="378.07648">Ohjelman pääsäikeessä </tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       x="383.67072"
+       y="639.50507"
+       id="text4140"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4142"
+         x="383.67072"
+         y="639.50507">Keskeytys funktiokutsussa</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       x="384.3157"
+       y="756.96478"
+       id="text4144"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4146"
+         x="384.3157"
+         y="756.96478">Kontrollerin varsinaisessa</tspan><tspan
+         sodipodi:role="line"
+         x="384.3157"
+         y="775.71478"
+         id="tspan4148">ohjelmasilmukassa</tspan></text>
   </g>
 </svg>

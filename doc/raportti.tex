@@ -52,7 +52,7 @@
 \huge AVR ja ARM harjorustyö, Ohjelmoinnin jatkokurssi\\ % The assignment title
 }
 \author{
-Jarmo Kivekäs 1302928
+Jarmo Kivekäs
 }
 \date{\normalsize\today} % Today's date or a custom date
 
@@ -83,20 +83,27 @@ Tämä raportti käsittelee robottia joka toteutettiin harjoitustyönä Ohjelmoi
 Harjoitustyön tarkoituksen oli oppia järjestelmäläheistä ohjelmointia ARM sekä AVR ympäristäissä.
 Raportin sekä siinä esitetyn materiaalin on laatinut Jarmo Kivekäs.
 
-Monet (jopa suurin osa) työssä toteutetuista asioista olisi voinut toteuttaa yksinkertaisemmin käyttämällä valmiita kirjastoja. Oppimistavoitteiden saavuttamiseksi on keskitytty järjestelmän toteuttamiseen alhaisella abstraktio tasolla käyttäen paljon järjestelmäkohtaista koodia, sen sijaan että oltaisiin pyritty toteuttamaan monipuolinen järjestelmä. Työssä on käytetty lähinnä avr-libc:n toimintoja, omia otsikkotiedostoja sekä joitain otsikkotiedostoja jotka kuuluvat vaikona linuxin \verb+gcc+ asennukseen.
+Monet (jopa suurin osa) työssä toteutetuista asioista olisi voinut toteuttaa yksinkertaisemmin käyttämällä valmiita kirjastoja. Oppimistavoitteiden saavuttamiseksi on keskitytty järjestelmän toteuttamiseen alhaisella abstraktio tasolla käyttäen paljon järjestelmäkohtaista koodia, sen sijaan että oltaisiin pyritty toteuttamaan monipuolinen järjestelmä. Työssä on käytetty lähinnä avr-libc:n toimintoja, omia otsikkotiedostoja sekä joitain otsikkotiedostoja jotka kuuluvat vaikona käytettyyn linuxin \verb+gcc+ asennukseen.
 
-Työssä panostettiin myös vahvaan matemaattisenn oikaoppisuuteen ja välttäen empiiristä `mitoitusta' kokeilemalla arvoja esim. ajastimen kalibrointia varten yms.
+Työssä panostettiin myös vahvaan matemaattiseen oikaoppisuuteen välttäen empiiristä `mitoitusta' kokeilemalla arvoja esim. ajastimen esijakajan kalibrointia varten yms.
 
-\section{Järjestelmä arkkitehtuuri}
-\label{sec:Jarjestelma arkkitehtuuri}
+\section{Järjestelmän kuvaus}
+\label{sec:Jarjestelma kuvaus}
 
-\section{Käyttöliittymä}
+\begin{figure}
+    \centering
+    \caption{Järjestelmän arkkitehtuur}
+    \label{fig:architechture}
+    \includegraphics[scale=0.5]{./architechture.pdf}
+\end{figure}
+
+\subsection{Käyttöliittymä}
 \label{sec:Kayttoliittyma}
 
 Käyttöliittymä robotin ojausta varten toteutettiin RaspberryPi -alustalla.
 Robotin ohjaus käyttöliittymän kautta tapahtuu kokonaan RPI:n liitetyn ulkoisen USB näppäimistön kautta.
 
-\subsection{USB käyttöliittymälaitteiden tulkitseminen}
+\subsubsection{USB käyttöliittymälaitteiden tulkitseminen}
 \label{sub:USB kayttoliittymalaitteiden tulkitseminen}
 
 Näppäimistön kautta annetut käskyt luetaan erityisestä \verb+/dev/input/eventX+ tiedostosta. Näppäinpainalluksia tulkitseva moduuli on toteutettu tiedostossa \verb+src/hid_input.c+.
@@ -112,15 +119,14 @@ Uuden säikeen aloittavalle \verb+pthread_create()+ funktiolle annetaan kolmanne
 
 Ohjelman säikeiden välillä siiretään dataa yhteisessä muistissa olevan muuttujan kautta. Yksi säkeistä aina muokkaa dataa ja toinen aina lukee, joten ei tarvittu toteuttaa mutex-järjestelmään tiedon eheyden varmistamiseksi.
 
-\section{Ohjaus teoria}
-\label{sec:Ohjaus teoria}
 
-Robotin toteuttamista varten sovellettiin useaa eri mateemaattista mallinnusta robotin oletetusta käyttäytymisestä.
-Mallit phojautuvat hyvin tunnettuihun ohjausmalleihin joiden oikea toimivuus on näyhty käytännön sovelluksissa jo ennestään.
  
 
 \subsection{Kineettinen malli}
 \label{sub:Kineettinen malli}
+
+Robotin toteuttamista varten sovellettiin useaa eri mateemaattista mallinnusta robotin oletetusta käyttäytymisestä.
+Mallit phojautuvat hyvin tunnettuihun ohjausmalleihin joiden oikea toimivuus on näyhty käytännön sovelluksissa jo ennestään.
 
 Mekaanisesti robotti on rakennettu niin, että liikkuminen toteutetaan ensisijaisesti kahdella laitteen sivuilla sijaitsevan renkaan avulla.
 Robotti liikkuu käyttäen kahta ns. differentiaalista ajo-moottoria.
@@ -176,16 +182,51 @@ Soveltamalla malleja (\ref{equ:diff-drive-implementation}) ja (\ref{equ:diff-dri
 
 
 
-\section{Kommunikointi protokolla}
+\subsection{Kommunikointi protokolla}
 \label{sec:Kommunikointi protokilla}
 
-Sarjaväylän kommunikaatio toteutettiin AVRllä käyttäen mikro-ohjaimen tuottamaa ISR -funktiokutsua joka tapahtuu aina kun sarjavälälle on saapunut tavu dataa. \verb+printf()+ -perheen funktioiden vaatima \verb+stdio+ puskuri toteutettiin myös, mutta funktioita ei kuitenkaan päädytty käyttämään suuren ROM vaatimuksien takia (yli 1000 tavua pelkän \verb+printf()+ käyttämistä varten). 
+Sarjaväylän kommunikaatio toteutettiin AVRllä käyttäen mikro-ohjaimen tuottamaa ISR -funktiokutsua joka tapahtuu aina kun sarjavälälle on saapunut tavu dataa. \verb+printf()+ ja \verb+scanf()+ -perheen funktioiden vaatimat \verb+stdout+ ja \verb+stdin+ puskurit toteutettiin myös, mutta funktioita ei kuitenkaan päädytty käyttämään suuren ROM vaatimuksien takia (yli 1000 tavua pelkän \verb+printf()+ käyttämistä varten).
 
-Robotti tallentaa viimeksi saadut komennot, joten uusi komentoja tarvitsee lähettää sarjaväylän yli vain sillon kun niihin on tapahtunut muutos.
+Robotti tallentaa viimeksi saadut komennot muistiin, joten uusi komentoja tarvitsee lähettää sarjaväylän yli vain sillon kun niihin on tapahtunut muutos. Näin vältytään toistuvilta samanlaisilta viesteiltä.
 
-Lähetetty viesti koostuu yhden tavun pituisesta alkumerkistä, jonka jälkeen tulee kaksi \verb+uint16_t+ arvoa. Arvot kertovat kuinka nopeasti renkaiden kuulu pyöriä (kuinka monta ajastimen aikayksikköä jokaisen askelmoottorin askeleen välillä). 
+\subsubsection{Viesin rakenne}
+\label{sub:Viesin rakenne}
 
-\section{Moottorien ohjaaminen}
+
+Vestit ovat kiinteän mittaisia, ja sisältävät aina samatkentät. Viesti voidaan esitää C-kiellä seuraavanlaisella tietorakenteella:
+
+
+\begin{verbatim}
+    struct command_message {
+        uint16_t id;
+        uint16_t tick_period_right;
+        uint16_t tick_period_left;
+        char direction;
+        char checksum;
+    } __attribute__((packed));
+\end{verbatim}
+
+\begin{center}
+\begin{tabular}{|r|c|c|c|c|c|c|}
+    \hline
+    Nimi & \verb+start+ & \verb+id+ & \verb+right_tick_period+ & \verb+left_tick_period+ & \verb+direction+ & \verb+checksum+ \\
+    \hline
+    koko & 8 bit & 16 bit & 16 bit & 16 bit & 8 bit & 8 bit\\
+    \hline
+\end{tabular}
+\end{center}
+
+
+\paragraph{start:} kiinteästi määritelty bittikuvio \verb+0x61+ joka vastaa ascii merkkiä \verb+'a'+. Merkin tarkoitus on välttää sitä, että vastaanottaja yrittää tulkita kaikkea sarjaväylään saapuvaa dataa. Johtuen siitä, että data tulee radion kautta, `turhaa' dataa joka on tarkoitettu jonkin muun laitteen vastaanotettavaksi saapuu melko paljon. Viestiä ei ruveta purkamaan ennen kuin merkki on vastaanotettu.
+
+\paragraph{id:} 16 bitin pituinen laitekohtainen tunnistuskoodi. Koodin tehtävänä on mahdollistaa usean samanlaisen robotin ohjaamisen samalla alueella, ilman että järjestelmien viestiliikenteet häiritsevät toisiaan. Koodi on tarkoitus tallentaa robotin pitkäaikaiseen EEPROM muitsiin jotta se säilyy vaikka laite sammutetaan (toistaiseksi toiminto on viellä toteuttamatta).
+
+\paragraph{right- sekä left\_tick\_period:} kertoo kuinka monen ajatimen aikayksikön välein robotin askelmoottoriden tulee ottaa askel. Tarkemmin kohdassa \ref{sec:Moottorien ohjaaminen}.
+ 
+\paragraph{direction:} 8 bitin pituinen bittijono, josta alimmat kaksi bittiä on käytössä.
+
+
+\subsection{Moottorien ohjaaminen:}
 \label{sec:Moottorien ohjaaminen}
 
 

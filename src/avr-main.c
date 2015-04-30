@@ -11,11 +11,14 @@
 
 
 
-/* This array is modified inside the USART receive interrupt, declare volatile*/
-/* this will be accessed as extern from avr_comms.c */
+/*
+These globals will be accessed as extern from avr_comms.c
+declared as volatile because they are altered in an ISR
+*/
 volatile uint16_t GLOBAL_motor_tick_period[2] = {1000, 1000};
 volatile char GLOBAL_motor_direction = 0x00;
 
+const uint16_t GLOBAL_device_id = 0xcafe;
 
 /**
 Initialize 16-bit timer1 for controlling the motor tick timings
@@ -40,7 +43,7 @@ void TIMER1_init(){
 
 int main(int argc, char const *argv[]) {
     
-    /* PB0 pin high enables radio comms using Xino-RF serial radio*/
+    /* PB0 pin high enables radio comms using Xino-RF serial radio */
     DDRB  |= (1<<PB0);
     PORTB |= (1<<PB0);
 

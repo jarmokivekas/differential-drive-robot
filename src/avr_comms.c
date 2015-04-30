@@ -48,12 +48,12 @@ void USART0_init(){
 
 
 
-
-char GLOBAL_motor_direction;
-uint16_t GLOBAL_motor_tick_period[2];
+/* Global variables from avr_comms.c */
+extern char GLOBAL_motor_direction;
+extern uint16_t GLOBAL_motor_tick_period[2];
 
 /** 
- Interrupt service routine for the USART receive character  interrupt
+ Interrupt service routine for the USART0 receive character interrupt
  */
 ISR(USART_RX_vect){
     cli();
@@ -62,7 +62,7 @@ ISR(USART_RX_vect){
     static struct command_message msg_struct;
     static char *msg_array = (char *) &msg_struct;
 
-    /** store id, speeds and direction **/
+    /** store id, speeds and direction, also calculate checksum **/
     if (byte_idx <= 6){
         msg_array[byte_idx] = UDR0;
         msg_struct.checksum ^= UDR0;

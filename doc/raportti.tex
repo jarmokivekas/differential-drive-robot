@@ -92,7 +92,7 @@ Työssä panostettiin myös vahvaan matemaattiseen oikaoppisuuteen välttäen em
 
 \begin{figure}
     \centering
-    \caption{Järjestelmän arkkitehtuur}
+    \caption{Järjestelmän arkkitehtuurin lohkokaavio}
     \label{fig:architechture}
     \includegraphics[scale=0.5]{./architechture.pdf}
 \end{figure}
@@ -110,7 +110,7 @@ Näppäimistön kautta annetut käskyt luetaan erityisestä \verb+/dev/input/eve
 
 Näppämistöä tulkistseva koodia suoritetaan omassa ohjelma säikeessään. Säikeen aloittaminen on toteutettu käyttämällä POSIX säikeitä.
 
-Uuden säikeen aloittavalle \verb+pthread_create()+ funktiolle annetaan kolmanneksi argumentiksi funkio-osoitin funktioon joka halutaan suorittaa uudessa säikeessä. Neljäntenä argumenttina annetaan yksi \verb+void *+ -osoitin jonka kautta kaikki funktion argumentit annetaan. Tässä toteutuksessa argumenttina on pelkkä \verb+void *+:ksi muutettu merkkijonon osoitin (Tiedosto josta USB näppämimistöä tulkitaan).
+Uuden säikeen aloittavalle \verb+pthread_create()+ funktiolle annetaan kolmanneksi argumentiksi funktio-osoitin funktioon joka halutaan suorittaa uudessa säikeessä. Neljäntenä argumenttina annetaan yksi \verb+void *+ muutuja jonka kautta kaikki funktion argumentit annetaan. Tässä toteutuksessa argumenttina on pelkkä \verb+void *+:ksi muutettu merkkijonon osoitin \verb+(void *) char *+. Merkkijono kertoo mistä \verb+/dev/input/+ tiedostosta USB näppämimistöä tulkitaan.
 
 \begin{verbatim}
     pthread_t polling_thread_id;
@@ -128,11 +128,10 @@ Ohjelman säikeiden välillä siiretään dataa yhteisessä muistissa olevan muu
 Robotin toteuttamista varten sovellettiin useaa eri mateemaattista mallinnusta robotin oletetusta käyttäytymisestä.
 Mallit phojautuvat hyvin tunnettuihun ohjausmalleihin joiden oikea toimivuus on näyhty käytännön sovelluksissa jo ennestään.
 
-Mekaanisesti robotti on rakennettu niin, että liikkuminen toteutetaan ensisijaisesti kahdella laitteen sivuilla sijaitsevan renkaan avulla.
+Mekaanisesti robotti on rakennettu niin, että liikkuminen toteutetaan kahdella laitteen sivuilla sijaitsevan renkaan avulla.
 Robotti liikkuu käyttäen kahta ns. differentiaalista ajo-moottoria.
 Käytännössä tämä tarkoittaa sitä, että sivulla olevia moottoerita voidaan ohjeta toisitaan riippumatta.
 Robotti kääntyy kun renkaat pyörivät eri nopeutta suhteessa toisiinsa.
-Lisäksi robotilla on vapaasti liikkuvia tukipyöriä jotta se pytyy tasapainossa.
 
 Robotin ohjaamista varten käytetty matemaattinen malli on seuraavanlainen:
 \begin{align}
@@ -147,7 +146,6 @@ Robotin ohjaamista varten käytetty matemaattinen malli on seuraavanlainen:
 Robotin oletetaan kulkevan tasaisen tason pinnalla. $x$ ja $y$ kuvaavat laitteen paikkaa tasolla, $\phi$ robotin etuosan osittamaa suuntaan, $v_r$ ja $v_l$ ovat oikean sekä vasemmanpuolisen renkaan pyörimisnopeudet. Lisäksi mallissa esiintyy vakio $R$ joka on ohjaukseen käytettyjen renkaiden säde. Vakio $L$ on renkaiden etäisyys toisistaan.
 
 
----
 
 Yllä esitelty malli toimii hyvin ohjausta varten.
 Ohjausalgorimejä kehittäessä päädyttiin kuitenkin siihen tulokseen, että järjestelmää kannattaa käsitellä  yksinkertaisemalla mallilla. Robotin liikkeitä on hankala hahmottaa ajattelemalla pelkästään renkaiden pyörimisnopeutta.
@@ -180,6 +178,7 @@ Soveltamalla malleja (\ref{equ:diff-drive-implementation}) ja (\ref{equ:diff-dri
 \end{align}
 
 
+Muunnos on toteutettu tiedostossa \verb+src/dynamical_model.c+
 
 
 \subsection{Kommunikointi protokolla}
@@ -189,11 +188,11 @@ Sarjaväylän kommunikaatio toteutettiin AVRllä käyttäen mikro-ohjaimen tuott
 
 Robotti tallentaa viimeksi saadut komennot muistiin, joten uusi komentoja tarvitsee lähettää sarjaväylän yli vain sillon kun niihin on tapahtunut muutos. Näin vältytään toistuvilta samanlaisilta viesteiltä.
 
-\subsubsection{Viesin rakenne}
-\label{sub:Viesin rakenne}
+\subsubsection{Viestin rakenne}
+\label{sub:Viestin rakenne}
 
 
-Vestit ovat kiinteän mittaisia, ja sisältävät aina samatkentät. Viesti voidaan esitää C-kiellä seuraavanlaisella tietorakenteella:
+Vestit ovat kiinteän mittaisia, ja sisältävät aina samat kentät. Viesti voidaan esitää C-kiellä seuraavanlaisella tietorakenteella:
 
 
 \begin{verbatim}
@@ -211,7 +210,7 @@ Vestit ovat kiinteän mittaisia, ja sisältävät aina samatkentät. Viesti void
     \hline
     Nimi & \verb+start+ & \verb+id+ & \verb+right_tick_period+ & \verb+left_tick_period+ & \verb+direction+ & \verb+checksum+ \\
     \hline
-    koko & 8 bit & 16 bit & 16 bit & 16 bit & 8 bit & 8 bit\\
+    Koko & 8 bit & 16 bit & 16 bit & 16 bit & 8 bit & 8 bit\\
     \hline
 \end{tabular}
 \end{center}
@@ -219,35 +218,41 @@ Vestit ovat kiinteän mittaisia, ja sisältävät aina samatkentät. Viesti void
 
 \paragraph{start:} kiinteästi määritelty bittikuvio \verb+0x61+ joka vastaa ascii merkkiä \verb+'a'+. Merkin tarkoitus on välttää sitä, että vastaanottaja yrittää tulkita kaikkea sarjaväylään saapuvaa dataa. Johtuen siitä, että data tulee radion kautta, `turhaa' dataa joka on tarkoitettu jonkin muun laitteen vastaanotettavaksi saapuu melko paljon. Viestiä ei ruveta purkamaan ennen kuin merkki on vastaanotettu.
 
+Yllä \verb+start+ tavu on tietoisesti jätetty pois structista koska se ei sisällä uutta dataa
+
 \paragraph{id:} 16 bitin pituinen laitekohtainen tunnistuskoodi. Koodin tehtävänä on mahdollistaa usean samanlaisen robotin ohjaamisen samalla alueella, ilman että järjestelmien viestiliikenteet häiritsevät toisiaan. Koodi on tarkoitus tallentaa robotin pitkäaikaiseen EEPROM muitsiin jotta se säilyy vaikka laite sammutetaan (toistaiseksi toiminto on viellä toteuttamatta).
 
 \paragraph{right- sekä left\_tick\_period:} kertoo kuinka monen ajatimen aikayksikön välein robotin askelmoottoriden tulee ottaa askel. Tarkemmin kohdassa \ref{sec:Moottorien ohjaaminen}.
  
-\paragraph{direction:} 8 bitin pituinen bittijono, josta alimmat kaksi bittiä on käytössä.
+\paragraph{direction:} 8 bitin pituinen bittijono, josta alimmat kaksi bittiä on käytössä. Alin bitti määrää oikean puolen moottorin pyörimis-suunnan ja toisiksi alin bitti määrää vasemman moottorin suunnan.
+
+\paragraph{checksum:} Tiiviste arvo jonka avulla voidaan havaita väärin formatoitu data. Tiiviste saadaan laskemalla \verb+id+, \verb+tick_period_right+, \verb+tick_period_left+ sekä \verb+direction+ kentätä muodastavien tavujen XOR tulo. 
 
 
 \subsection{Moottorien ohjaaminen:}
 \label{sec:Moottorien ohjaaminen}
 
+\begin{figure}
+    \centering
+    \caption{Askelmoottoreita ohjaava tilakone}
+    \label{fig:stepper_fsm}
+    \includegraphics[scale=0.8]{./stepper_fsm.pdf}
+\end{figure}
+\begin{figure}
+    \centering
+    \caption{Tilakoneen lähtö ajan funktiona kun tulossa (suunta) on 1}
+    \includegraphics[scale=0.8]{./stepper_timing.pdf}
+\end{figure}
 
-Moottorieden ohjausta varten käytetään 16-bittistä ajastinta. Ajastimen esijakaja on asetttu olemaan 1024 ja mikro-ohjaimen kellotaajuus on 16 MHz. Tästä saadaan että kello jonka tarkkuus (yhden aikayksikön pituus) on $1024/16 \text{ MHz} = 64 \mu s $. Ajastimen laskin kierähtää takaisin nollaan $2^{16} * 64\mu s \approx 4.2 s$ välein. 
 
 
-\section{Oppitulosket}
-\label{sec:Oppitulosket}
+Moottorieden ohjausta varten käytetään 16-bittistä ajastinta. Ajastimen esijakaja on asetttu olemaan 1024 ja mikro-ohjaimen kellotaajuus on 16 MHz. Tästä saadaan kello jonka tarkkuus (yhden aikayksikön pituus) on $1024/16 \text{ MHz} = 64 \mu s $. Ajastimen laskin kierähtää takaisin nollaan $2^{16} * 64\mu s \approx 4.2 s$ välein. 
 
-Projektin tarkoituksena oli syventyä järjestelmäläheiseen C-kilen ohjelmointiin AVR sekä ARM prosessoriarkkitehtuureilla ja yelisemmin kielen eri ominaisuuksiin.
+Funktiota \verb+stepper_tick()+ kutsutaan aina kun sopiva määrä aikaa on kulunut. Funkito on toteutettu yksinkertaisella tilakoneella (Kuva \ref{fig:stepper_fsm}).
 
-USB käyttöliitymälaitteiden raa'an datan tulkistemista varten ei löytynyt kovin perusteellista oppimateriaalia.
-Suuri osa työskently- ja oppimisprosessia koostui eri asiaankuuluvien C otsaketiedostojen lukemisesta, koska tietoa ei suurikaan muualta löytynyt helposti. 
+Funktion täysi prototyyppin on \verb+stepper_tick(struct *stepper_state_machine, char direction)+. Ensimmäinen argumentti on osoittaja tietorakenteeseen joka määrittelee moottorin jolla halutaan ottaa askel. Toinen argumentti määrittää suunnan johon askel otetaan (tilakoneen tulo).
 
-\subsection{Rekisteriosoittimien käsittely}
-\label{Rekisteriosoittimien kasittely}
-
-Muita kiinnostavia asioita oli esimerkiski keskiä millä datatyypillä AVR:n erikoistoimintorekisterit (SFR) niin kuin \verb+PORTB+ ovat esitetty.
-Esitytavan tunteminen oli olennaista jotta pystyi kirjoittamaan tehokkaita funktioita joille annetaan I/O -nasta argumenttina. Arduino/wiring kirjastoja käyttäessä kuluu paljon laskutehoa siihen, että siirrytään Arduinon nastojen numeroinnista AVR yhteensopivaan esitystapaan. Käsittelemällä rekisterejen osoittajia saadaan huomattavasti nopeammin suoritettavaa koodia.
-
-Esitystapaa tuli käytettyä esim stepperimoottoreiden määrittelyssä:
+Moottorin määrittelevään tietorakenteeseen on tallenettu I/O -nastat joihin tilakoneen lähtö on kytketty sekä kyseistä moottoria ohjaavan tilakoneen tila:
 
 \begin{verbatim}
     struct stepper_state_machine {
@@ -259,18 +264,37 @@ Esitystapaa tuli käytettyä esim stepperimoottoreiden määrittelyssä:
     };
 \end{verbatim}
 
+Tietorakenteen \verb+state+ kentän arvot on valittu niin, että alin ja toisiksi alin bitti määrittävät \verb+phaseA+ sekä \verb+phaseB+ nastojen tilan.
+
+\section{Oppitulosket}
+\label{sec:Oppitulosket}
+
+
+Suuri osa työskently- ja oppimisprosessia koostui eri asiaankuuluvien C otsaketiedostojen lukemisesta, koska tietoa ei suurikaan muualta löytynyt helposti. 
+Esimerkiksi USB käyttöliitymälaitteiden raa'an datan tulkistemista varten ei löytynyt kovin perusteellista oppimateriaalia verkosta.
+
+\subsection{Rekisteriosoittimien käsittely}
+\label{Rekisteriosoittimien kasittely}
+
+Yksi kiinnostava asia oli keskiä millä datatyypillä AVR:n erikoistoimintorekisterit (SFR) niin kuin \verb+PORTB+ ovat esitetty.
+Esitytavan tunteminen oli olennaista jotta pystyi kirjoittamaan tehokkaita funktioita joille annetaan I/O -nasta argumenttina. Arduino/wiring kirjastoja käyttäessä kuluu paljon laskutehoa siihen, että siirrytään Arduinon nastojen numeroinnista AVR yhteensopivaan esitystapaan. Käsittelemällä rekisterejen osoittajia saadaan huomattavasti nopeammin suoritettavaa koodia.
+
+Esitystapaa tuli käytettyä stepperimoottoreiden määrittelyssä.
+
+
+
 \subsection{Struct teitorakenteiden esitys muistissa}
 
 \verb+Struct+ tietorakentiden vertaileminen eri arkkitehtuureilla oli myös kiinnostavaa.
-RPI:n 32-bittin ARM arkkitehtuuri pyrkii asettamaan datan muistiosotteisiin jotka ovat neljällä jaollisia. 8-bittinen AVR ei kuitenkaan muistiosoitteien jaollisuudesta välitä.
+RPI:n 32-bittin ARM arkkitehtuuri pyrkii asettamaan datan muistiosotteisiin jotka ovat neljällä jaollisia. 8-bittinen AVR ei kuitenkaan muistiosoitteiden jaollisuudesta välitä.
 Tämä johtaa siihen, että structiin pakattua dataa ei voida turvallisesti siirtää suoraan ARM arkkitehtuurilta AVR arkkitehtuurille ilman että erikseen vamistetaan että tietorakenteiden esitys todella on sama molemmilla arkkitehtuuriella.
 Kirjoittaessa koodia jota on tarkoitus suorittaa molemilla arkkitehtuureilla pitää pitää mielessä että myös datatyyppien koot eroavat toisistaan. AVR:n \verb+int+ muuttuja on 16-bittinen, kun 32-bittisen ARM:n datatyyppi on 32-bittinen.
-Yleispätevää koodia saa kuitenkin kätevästi kirjoitettua käyttämällä \verb+<inttypes.h>+ määrittämiä datapyyppejä kuten \verb+uint8_t+ ja \verb+int32_t+
+Yleispätevää koodia saa kuitenkin kirjoitettua käyttämällä \verb+<inttypes.h>+ määrittämiä datapyyppejä kuten \verb+uint8_t+ ja \verb+int32_t+
 
 \subsection{Puskuroimaton kirjoitus päätteelle}
 \label{sub:Puskuroimaton kirjoitus paatteelle}
 
-Virheen korjaus viestejä kannataa tulostaa päätteellä käyttämällä \verb+fprintf(stderr, ...)+ tavallisen \verb+printf()+ sijasta, varsinkin kun työstää aika-kriittistä koodia. Puskuroidun tulostuksen sivuvaikutus tuli esiin, kun ohjelma RPIllä suoritettava ohjelma käyttäytyi eri tavall riippuen siitä, että suoritettiinko se itsenäisesti vai \verb+strace+ analysoimana. 
+Virheen korjaus viestejä kannataa tulostaa päätteellä käyttämällä \verb+fprintf(stderr, ...)+ tavallisen \verb+printf()+ sijasta, varsinkin kun työstää aika-kriittistä koodia. Puskuroidun tulostuksen sivuvaikutus tuli esiin, kun RPIllä suoritettava ohjelma käyttäytyi eri tavall riippuen siitä, että suoritettiinko se itsenäisesti vai \verb+strace+ analysoimana. 
 
   
 \subsection{Käytä oikeaa datalehteä}
@@ -278,7 +302,6 @@ Virheen korjaus viestejä kannataa tulostaa päätteellä käyttämällä \verb+
 
 
 Ojelmoitaessa PWM lähtöä (ei käytössä lopullisessa järjestlmässä) moottoreiden ohjaamista varten oli vahingossa ATmega8 datalehti käytössä ATmega328 datalehden sijaan. Mikrokontrollert ovat melkein samanlaiset, mutta niissä ei kuitenkaan ole identtiset ajastimet, eikä koodi toiminut. 
-
 
 
 \end{document}
